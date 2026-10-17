@@ -1,29 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#d97742"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
+    <!-- Background diagonal gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0633C" />
+      <stop offset="50%" stop-color="#AA5498" />
+      <stop offset="100%" stop-color="#724DE4" />
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#2e1065" flood-opacity="0.32"/>
+
+    <!-- Clean vector drop shadow with wide bounds to prevent any rectangular seams -->
+    <filter id="dropShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
+      <feOffset dx="0" dy="5" result="offsetblur" />
+      <feFlood flood-color="#000000" flood-opacity="0.22" />
+      <feComposite in2="offsetblur" operator="in" />
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
   </defs>
 
-  <!-- Background Base with Squircle Corners -->
-  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
-  
-  <!-- Subtle inner border highlight -->
-  <rect x="6" y="6" width="500" height="500" rx="106" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="4"/>
+  <!-- Squircle / Rounded Background -->
+  <rect width="512" height="512" rx="115" ry="115" fill="url(#bgGradient)" />
 
-  <!-- Logo Graphics Group -->
-  <svg x="96" y="96" width="320" height="320" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
-    <!-- Top line -->
-    <line x1="3" y1="6" x2="21" y2="6"/>
-    <!-- Middle line with playhead / note gap -->
-    <line x1="3" y1="12" x2="14.2" y2="12"/>
-    <!-- Bottom line -->
-    <line x1="3" y1="18" x2="18" y2="18"/>
-    <!-- Note / Playhead indicator dot -->
-    <circle cx="19.2" cy="12" r="2.1" fill="#ffffff" stroke="none"/>
-  </svg>
+  <!-- Icon Elements with seamless drop shadow -->
+  <g filter="url(#dropShadow)" fill="#FFFFFF">
+    <!-- Top Bar -->
+    <rect x="120" y="160" width="272" height="32" rx="16" />
+
+    <!-- Middle Bar -->
+    <rect x="120" y="240" width="182" height="32" rx="16" />
+
+    <!-- Dot / Circle -->
+    <circle cx="352" cy="256" r="28" />
+
+    <!-- Bottom Bar -->
+    <rect x="120" y="320" width="232" height="32" rx="16" />
+  </g>
 </svg>
