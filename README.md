@@ -33,8 +33,8 @@ No media files or notes are ever uploaded to an external server or cloud service
 - **Local File Playback:** Drag and drop or browse local video and audio files (`.mp4`, `.mkv`, `.webm`, `.mov`, `.avi`, `.mp3`, `.wav`, `.m4a`, `.flac`, `.ogg`, `.opus`, `.aac`).
 - **YouTube Integration:** Paste any YouTube video link (regular links, `youtu.be`, `/shorts/`, or `/embed/`) with automatic video title synchronization and timeline scrubbing.
 - **External Video Streams:** Direct playback of remote HTTP/HTTPS video and audio streams.
-- **Linked Media Files:** In Chromium-based desktop browsers (Chrome, Edge, Brave…) each project remembers the media file it was made from via the File System Access API. Opening the project reopens the file after a single permission click instead of a trip through the file picker; an installed PWA can choose *Allow on every visit* to skip even that.
-- **Detached Review Mode:** Load and review saved project annotations, search notes, and export reports even without the source media file attached (or while the browser can't reopen it).
+- **Linked Media Files:** In Chromium-based desktop browsers (Chrome, Edge, Brave…) each notebook remembers the media file it was made from via the File System Access API. Opening the notebook reopens the file after a single permission click instead of a trip through the file picker; an installed PWA can choose *Allow on every visit* to skip even that.
+- **Detached Review Mode:** Load and review saved notebook annotations, search notes, and export reports even without the source media file attached (or while the browser can't reopen it).
 
 ### 📊 Interactive Canvas Waveform & Timeline
 - **Hardware-Accelerated Timeline:** Smooth canvas scrubbing, high-DPI scaling, and responsive hover timecodes.
@@ -56,13 +56,13 @@ No media files or notes are ever uploaded to an external server or cloud service
 - **Undo & Redo:** <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Z</kbd> (or the toast's Undo button) reverts adds, edits, deletes, imports and clear-all; <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> or <kbd>Ctrl</kbd> + <kbd>Y</kbd> redoes.
 - **Instant Search:** Real-time text filtering across all annotations in the sidebar.
 
-### 💾 Local Projects & Session Management
+### 💾 Local Notebooks & Session Management
 - **IndexedDB Auto-Save:** Changes are persisted locally across reloads and media changes in `LinedNotesDB`.
-- **Picks Up Where You Left Off:** The project that was open when you last closed Lined Notes opens again on the next launch; a linked file reattaches where the browser allows, otherwise *Reopen* is one click away. Start a *New Project* before leaving to open on a blank slate instead.
-- **Project Switcher & Manager:** Browse all past sessions, search by media title or tags, restore projects, and manage stored sessions.
-- **Inline Project Renaming:** Rename session titles directly from the project manager with confirm/cancel controls.
-- **Back Up & Restore:** Download every project as one JSON file and restore it later (restores merge with existing projects). Backups carry notes, not file links: a restored project opens in Detached Review Mode until its media file is attached once more.
-- **Persistent Storage:** Asks the browser to protect saved projects from automatic clean-up; usage is shown in Settings.
+- **Picks Up Where You Left Off:** The notebook that was open when you last closed Lined Notes opens again on the next launch; a linked file reattaches where the browser allows, otherwise *Reopen* is one click away. Start a *New Notebook* before leaving to open on a blank slate instead.
+- **Notebook Switcher & Manager:** Browse all past sessions, search by media title or tags, restore notebooks, and manage stored sessions.
+- **Inline Notebook Renaming:** Rename session titles directly from the notebook manager with confirm/cancel controls.
+- **Back Up & Restore:** Download every notebook as one JSON file and restore it later (restores merge with existing notebooks). Backups carry notes, not file links: a restored notebook opens in Detached Review Mode until its media file is attached once more.
+- **Persistent Storage:** Asks the browser to protect saved notebooks from automatic clean-up; usage is shown in Settings.
 
 ### 📱 Responsive PWA & Mobile Support
 - **Installable PWA:** Install as a standalone native app on macOS, Windows, Linux, Android, and iOS.
@@ -148,7 +148,7 @@ Export your timeline annotations at any time into a variety of production format
 
 | Format | File Extension | Description / Target Tools |
 |:---|:---:|:---|
-| **JSON** | `.json` | Full-fidelity project backup containing all timestamps, In/Out ranges, tags, snapshots, and metadata. |
+| **JSON** | `.json` | Full-fidelity notebook backup containing all timestamps, In/Out ranges, tags, snapshots, and metadata. |
 | **Markdown** | `.md` | Formatted notes with timestamp anchors ready for **Obsidian**, **Notion**, or **GitHub**. |
 | **SubRip Subtitles** | `.srt` | Standard subtitle cues for **Premiere Pro**, **DaVinci Resolve**, **Final Cut Pro**, and **VLC**. |
 | **WebVTT** | `.vtt` | Web video subtitles, HTML5 `<track>` elements, and chapter markers. |
@@ -184,7 +184,7 @@ lined-notes/
 │   ├── player.js             # HTML5 media controller & YouTube IFrame API bridge
 │   ├── timeline.js           # 60 FPS Canvas timeline scrubber and render engine
 │   ├── notes.js              # Annotation CRUD, tagging, and thumbnail snapshot logic
-│   ├── sessions.js           # Multi-project session management & persistence
+│   ├── sessions.js           # Multi-notebook session management & persistence
 │   ├── db.js                 # IndexedDB wrapper (LinedNotesDB)
 │   ├── file-handles.js       # File System Access API: remembers & reopens local media files
 │   ├── export.js             # Multi-format serializers (JSON, MD, SRT, VTT, CSV, HTML)

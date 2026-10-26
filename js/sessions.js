@@ -238,7 +238,7 @@ export class SessionsManager {
   async backupAllSessions() {
     const sessions = await this.db.getAllSessions();
     if (sessions.length === 0) {
-      showToast('No saved projects to back up');
+      showToast('No saved notebooks to back up');
       return;
     }
     const backup = {
@@ -262,7 +262,7 @@ export class SessionsManager {
       return;
     }
     if (entries.length === 0) {
-      showToast('Backup contains no projects');
+      showToast('Backup contains no notebooks');
       return;
     }
 
@@ -428,7 +428,7 @@ export class SessionsManager {
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
               </svg>
             </div>
-            <div class="sessions-empty-title">No Saved Projects Yet</div>
+            <div class="sessions-empty-title">No Saved Notebooks Yet</div>
             <div class="sessions-empty-desc">Open an audio or video file and start creating notes. Your annotations will automatically save here so you can revisit them anytime.</div>
             <button class="btn btn-primary btn-sm" onclick="app.openMediaPicker(); app.sessions.closeSessionsModal();">
               Open Media File
@@ -437,7 +437,7 @@ export class SessionsManager {
       } else {
         this.sessionsList.innerHTML = `
           <div class="sessions-empty">
-            <div class="sessions-empty-title">No Matching Projects</div>
+            <div class="sessions-empty-title">No Matching Notebooks</div>
             <div class="sessions-empty-desc">No saved sessions match "${escapeHtml(q)}". Try a different search term.</div>
           </div>`;
       }
@@ -478,7 +478,7 @@ export class SessionsManager {
         mediaIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" width="16" height="16"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
         typeBadge = '<span class="session-badge-type" style="background:rgba(56,189,248,0.12);color:var(--accent-cyan);border:1px solid rgba(56,189,248,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;">Web Video</span>';
       } else if (isFileHandle(item.data?.fileHandle)) {
-        typeBadge = '<span class="session-badge-type" style="background:rgba(112,151,117,0.14);color:#709775;border:1px solid rgba(112,151,117,0.3);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;" title="The media file is remembered: opening this project reopens it without browsing">Linked</span>';
+        typeBadge = '<span class="session-badge-type" style="background:rgba(112,151,117,0.14);color:#709775;border:1px solid rgba(112,151,117,0.3);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;" title="The media file is remembered: opening this notebook reopens it without browsing">Linked</span>';
       }
 
       const fileInfoHtml = `
@@ -486,7 +486,7 @@ export class SessionsManager {
           <div class="session-title-static">
             <span class="session-media-icon">${mediaIconSvg}</span>
             <span class="session-file-name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</span>
-            <button type="button" class="session-rename-btn" data-session-action="edit-name" data-session-key="${escapeHtml(key)}" title="Rename project" aria-label="Rename project">
+            <button type="button" class="session-rename-btn" data-session-action="edit-name" data-session-key="${escapeHtml(key)}" title="Rename notebook" aria-label="Rename notebook">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
                 <path d="M12 20h9"/>
                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -497,8 +497,8 @@ export class SessionsManager {
           </div>
           <div class="session-rename-form">
             <span class="session-media-icon">${mediaIconSvg}</span>
-            <input type="text" class="session-rename-input" name="project-rename-input" aria-label="Project name" data-session-key="${escapeHtml(key)}" value="${escapeHtml(fileName)}" maxlength="120" spellcheck="false" autocomplete="off" />
-            <button type="button" class="session-rename-action-btn check" data-session-action="save-name" data-session-key="${escapeHtml(key)}" title="Save project name (Enter)" aria-label="Save project name">
+            <input type="text" class="session-rename-input" name="project-rename-input" aria-label="Notebook name" data-session-key="${escapeHtml(key)}" value="${escapeHtml(fileName)}" maxlength="120" spellcheck="false" autocomplete="off" />
+            <button type="button" class="session-rename-action-btn check" data-session-action="save-name" data-session-key="${escapeHtml(key)}" title="Save notebook name (Enter)" aria-label="Save notebook name">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
@@ -600,7 +600,7 @@ export class SessionsManager {
     const trimmed = (newName || '').trim();
     const card = this.getSessionCardByKey(key);
     if (!trimmed) {
-      showToast('Project name cannot be empty');
+      showToast('Notebook name cannot be empty');
       const input = card ? card.querySelector('.session-rename-input') : null;
       if (input) input.focus();
       return;
@@ -665,7 +665,7 @@ export class SessionsManager {
       await this.db.set(key, data);
     } catch (err) {
       console.error('Failed to persist renamed session:', err);
-      showToast('Error saving project name');
+      showToast('Error saving notebook name');
     }
   }
 
@@ -892,7 +892,7 @@ export class SessionsManager {
     }
     // Projects are keyed by file name and size: a renamed or re-encoded file would save under another key
     if (fileSessionKey(file) !== key) {
-      this.setAsideLinkedMedia(`The remembered file is now "${file.name}" (${formatBytes(file.size)}), which no longer matches this project. Attach the media file manually.`);
+      this.setAsideLinkedMedia(`The remembered file is now "${file.name}" (${formatBytes(file.size)}), which no longer matches this notebook. Attach the media file manually.`);
       return 'lost';
     }
     this.player.loadFile(file, { handle });
@@ -918,11 +918,11 @@ export class SessionsManager {
   async deleteSessionByKey(key, event) {
     if (event) event.stopPropagation();
     const data = await this.db.get(key);
-    const name = (data && data.fileName) || 'this project';
+    const name = (data && data.fileName) || 'this notebook';
     const ok = await confirmDialog({
-      title: 'Delete saved project?',
+      title: 'Delete saved notebook?',
       message: `"${name}" and all of its annotations will be permanently removed from this browser. Consider "Back Up All" first.`,
-      confirmLabel: 'Delete Project',
+      confirmLabel: 'Delete Notebook',
       danger: true
     });
     if (!ok) return;

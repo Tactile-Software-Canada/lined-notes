@@ -86,12 +86,12 @@ export const ONBOARDING_STEPS = [
     title: 'Open your media',
     body: (touch) => touch ? `
       <p>Tap the player area to choose a file, or paste a <b>YouTube</b> or direct video link into the box below it.</p>
-      <p>Each file or link becomes a project that <b>saves automatically</b>. Find earlier ones in
-      <b>⋮ → Saved Projects</b>.</p>` : `
+      <p>Each file or link becomes a notebook that <b>saves automatically</b>. Find earlier ones in
+      <b>⋮ → Saved Notebooks</b>.</p>` : `
       <p>Drop a file onto the player or click <b>Open Media</b> — MP4, WebM, MKV, MP3, WAV and more.
       Or use <b>Open URL</b> (or just paste) for a <b>YouTube</b> or direct video link.</p>
-      <p>Each file or link becomes a project that <b>saves automatically</b>. Find earlier ones under
-      <b>Saved Projects</b>.</p>`
+      <p>Each file or link becomes a notebook that <b>saves automatically</b>. Find earlier ones under
+      <b>Saved Notebooks</b>.</p>`
   },
   {
     id: 'capture',
@@ -123,16 +123,16 @@ export const ONBOARDING_STEPS = [
     title: 'Export and keep it safe',
     body: () => `
       <p><b>Export</b> to Markdown, subtitles (SRT/VTT), CSV, a shareable HTML report or JSON.</p>
-      <p>Your notes live only in this browser, so now and then use <b>Saved Projects → Back Up All</b>
+      <p>Your notes live only in this browser, so now and then use <b>Saved Notebooks → Back Up All</b>
       to keep a copy you can restore anywhere.</p>`
   },
   {
     id: 'ready',
     title: "You're ready",
     body: (touch) => touch ? `
-      <p>Open a file or paste a link to start your first project.</p>
+      <p>Open a file or paste a link to start your first notebook.</p>
       <p>Everything else lives in the <b>⋮ menu</b> — including this guide, under <b>Getting Started</b>.</p>` : `
-      <p>Open a file or paste a link to start your first project. Press <kbd>?</kbd> anytime for all keyboard shortcuts.</p>
+      <p>Open a file or paste a link to start your first notebook. Press <kbd>?</kbd> anytime for all keyboard shortcuts.</p>
       <p>Everything else lives in the <b>⋮ menu</b> — including this guide, under <b>Getting Started</b>.</p>`
   }
 ];

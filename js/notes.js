@@ -524,7 +524,7 @@ export class NotesManager {
     if (state.notes.length === 0) return;
     const ok = await confirmDialog({
       title: 'Clear all annotations?',
-      message: `All ${state.notes.length} annotations in this project will be removed. You can undo this right afterwards.`,
+      message: `All ${state.notes.length} annotations in this notebook will be removed. You can undo this right afterwards.`,
       confirmLabel: 'Clear All',
       danger: true
     });

@@ -176,7 +176,7 @@ export class LinedNotesApp {
     const storage = navigator.storage;
     if (!infoEl) return;
     if (!storage || typeof storage.estimate !== 'function') {
-      infoEl.textContent = 'Storage details are not available in this browser. Use "Back Up All" in Projects to keep a copy.';
+      infoEl.textContent = 'Storage details are not available in this browser. Use "Back Up All" in Notebooks to keep a copy.';
       return;
     }
     try {
@@ -186,7 +186,7 @@ export class LinedNotesApp {
       ]);
       const protection = persisted
         ? 'Protected from automatic clean-up.'
-        : 'Not protected: the browser may delete projects when disk space is low.';
+        : 'Not protected: the browser may delete notebooks when disk space is low.';
       infoEl.textContent = `${formatBytes(usage)} used of ${formatBytes(quota)}. ${protection}`;
       if (btn) btn.style.display = persisted || typeof storage.persist !== 'function' ? 'none' : 'inline-flex';
     } catch (e) {
@@ -197,7 +197,7 @@ export class LinedNotesApp {
   async requestPersistentStorage() {
     try {
       const granted = await navigator.storage.persist();
-      if (!granted) showToast('The browser declined; back up projects regularly', false, null, 5000);
+      if (!granted) showToast('The browser declined; back up notebooks regularly', false, null, 5000);
     } catch (e) {
       showToast('Persistent storage is not supported here');
     }
