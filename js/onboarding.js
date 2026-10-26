@@ -137,19 +137,15 @@ export const ONBOARDING_STEPS = [
   }
 ];
 
-const REOPEN_HINT = 'reopen it anytime from the ⋮ menu → Getting Started';
-
 export class OnboardingGuide {
   /**
-   * @param {{ storageKey: string, hasSavedProjects: () => Promise<boolean>, notify: (msg: string) => void }} options
+   * @param {{ storageKey: string, hasSavedProjects: () => Promise<boolean> }} options
    */
-  constructor({ storageKey, hasSavedProjects, notify }) {
+  constructor({ storageKey, hasSavedProjects }) {
     this.storageKey = storageKey;
     this.hasSavedProjects = hasSavedProjects;
-    this.notify = notify;
     this.index = 0;
     this.isActive = false;
-    this.finished = false;
 
     this.modal = document.getElementById('onboarding-modal');
     if (!this.modal) return;
@@ -183,7 +179,6 @@ export class OnboardingGuide {
     if (!this.modal) return;
     this.index = Math.max(0, Math.min(ONBOARDING_STEPS.length - 1, index));
     this.isActive = true;
-    this.finished = false;
     this.render();
     this.modal.open();
     // <modal-dialog> focuses its close button first; land on the primary action instead
@@ -199,7 +194,6 @@ export class OnboardingGuide {
 
   next() {
     if (this.index >= ONBOARDING_STEPS.length - 1) {
-      this.finished = true;
       this.modal.close();
       return;
     }
@@ -248,11 +242,7 @@ export class OnboardingGuide {
   }
 
   onClosed() {
-    if (!this.isActive) return;
     this.isActive = false;
-    this.notify(this.finished
-      ? `You're all set — ${REOPEN_HINT}`
-      : `Guide closed — ${REOPEN_HINT}`);
   }
 
   readSeen() {

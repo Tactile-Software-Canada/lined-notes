@@ -220,7 +220,6 @@ export class NotesManager {
     }
     this.updateRangeStatusUI();
     state.emit('timelinechanged');
-    showToast(`A Point set at ${formatTime(state.APoint)}`);
   }
 
   setBPoint() {
@@ -230,7 +229,6 @@ export class NotesManager {
     state.BPoint = Math.max(state.APoint, state.currentTime);
     this.updateRangeStatusUI();
     state.emit('timelinechanged');
-    showToast(`B Point set at ${formatTime(state.BPoint)}`);
   }
 
   clearRange() {
@@ -357,7 +355,6 @@ export class NotesManager {
     state.emit('noteschange');
     state.emit('requestsave');
     state.emit('notesaved', note);
-    showToast(`Note saved at ${formatTime(note.start)}`);
   }
 
   deleteNote(id) {
@@ -446,7 +443,6 @@ export class NotesManager {
     // Follow the note so the active highlight and the timeline marker stay on it
     this.player.seekTo(note.start);
     state.activeNoteId = note.id;
-    showToast(`Note moved to ${formatTime(note.start)}`);
   }
 
   jumpToNote(start) {
@@ -548,7 +544,7 @@ export class NotesManager {
     const str = state.copyIncludeTimestamp
       ? `[${formatTime(note.start)}] ${note.text}`
       : note.text;
-    copyText(str, 'Note copied to clipboard');
+    copyText(str);
   }
 
   checkActiveNote() {
@@ -889,7 +885,6 @@ export class NotesManager {
       window.open(finalUrl, '_blank');
     }
 
-    showToast('Downloaded snapshot');
 
     setTimeout(() => {
       if (a.parentNode) a.parentNode.removeChild(a);

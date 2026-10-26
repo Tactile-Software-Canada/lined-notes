@@ -28,8 +28,7 @@ export class LinedNotesApp {
     this.import = new ImportManager();
     this.onboarding = new OnboardingGuide({
       storageKey: APP_CONFIG.onboardingSeenKey,
-      hasSavedProjects: async () => (await this.db.getAllSessions()).length > 0,
-      notify: (msg) => showToast(msg, false, null, 5000)
+      hasSavedProjects: async () => (await this.db.getAllSessions()).length > 0
     });
 
     this.shortcutsModal = document.getElementById('shortcuts-modal');
@@ -145,7 +144,6 @@ export class LinedNotesApp {
   toggleTheme() {
     const next = state.theme === 'light' ? 'dark' : 'light';
     this.applyTheme(next, true, true);
-    showToast(`Theme: ${next.charAt(0).toUpperCase() + next.slice(1)} Mode`);
   }
 
   initPreferences() {
@@ -170,7 +168,6 @@ export class LinedNotesApp {
       localStorage.setItem(APP_CONFIG.stampOffsetKey, String(state.stampOffset));
     } catch (e) { }
     this.updateSettingsUI();
-    showToast(state.stampOffset ? `Timestamps captured while playing move back ${state.stampOffset}s` : 'Stamp offset off');
   }
 
   async updateStorageInfo() {
@@ -200,7 +197,7 @@ export class LinedNotesApp {
   async requestPersistentStorage() {
     try {
       const granted = await navigator.storage.persist();
-      showToast(granted ? 'Projects are now protected from automatic clean-up' : 'The browser declined; back up projects regularly', false, null, 5000);
+      if (!granted) showToast('The browser declined; back up projects regularly', false, null, 5000);
     } catch (e) {
       showToast('Persistent storage is not supported here');
     }
@@ -230,7 +227,6 @@ export class LinedNotesApp {
       localStorage.setItem(copyKey, state.copyIncludeTimestamp ? 'true' : 'false');
     } catch (e) { }
     this.updateSettingsUI();
-    showToast(state.copyIncludeTimestamp ? 'Copy timecode enabled' : 'Copy timecode disabled');
   }
 
   updateSettingsUI() {
@@ -689,19 +685,16 @@ export class LinedNotesApp {
       if (installBtn) installBtn.style.display = 'none';
       const menuItem = document.getElementById('menu-item-install');
       if (menuItem) menuItem.style.display = 'none';
-      showToast('Lined Notes installed successfully!');
     });
 
     window.addEventListener('online', () => {
       const badge = document.getElementById('offline-badge');
       if (badge) badge.style.display = 'none';
-      showToast('Back online');
     });
 
     window.addEventListener('offline', () => {
       const badge = document.getElementById('offline-badge');
       if (badge) badge.style.display = 'inline-flex';
-      showToast('Offline mode — working locally');
     });
 
     if (!navigator.onLine) {
@@ -716,10 +709,7 @@ export class LinedNotesApp {
       return;
     }
     this.deferredInstallPrompt.prompt();
-    const choice = await this.deferredInstallPrompt.userChoice;
-    if (choice.outcome === 'accepted') {
-      showToast('Installing Lined Notes…');
-    }
+    await this.deferredInstallPrompt.userChoice;
     this.deferredInstallPrompt = null;
     const installBtn = document.getElementById('pwa-install-btn');
     if (installBtn) installBtn.style.display = 'none';
@@ -773,7 +763,6 @@ export class LinedNotesApp {
   newProject() {
     const hasMedia = state.hasMedia();
     if (!hasMedia && state.notes.length === 0) {
-      showToast('Already on a new project');
       return;
     }
 
@@ -862,8 +851,6 @@ export class LinedNotesApp {
     state.emit('filereset');
     state.emit('noteschange');
     state.emit('timelinechanged');
-
-    showToast('Started new project');
   }
 
   setZoom(zoom) {

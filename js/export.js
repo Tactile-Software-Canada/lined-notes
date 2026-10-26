@@ -198,12 +198,11 @@ export class ExportManager {
     downloadText(`${baseName}_annotations.${ext}`, content, exportMime);
 
     this.closeExportModal();
-    showToast(`Exported as .${ext}`);
   }
 
   copyExportToClipboard() {
     const { content, ext } = this.generateExportContent();
-    copyText(content, `Copied ${ext.toUpperCase()} to clipboard`);
+    copyText(content);
     this.closeExportModal();
   }
 
@@ -226,7 +225,6 @@ export class ExportManager {
             files: [file]
           });
           this.closeExportModal();
-          showToast('Shared successfully!');
           return;
         } else {
           await navigator.share({
@@ -234,7 +232,6 @@ export class ExportManager {
             text: content
           });
           this.closeExportModal();
-          showToast('Shared successfully!');
           return;
         }
       } catch (err) {

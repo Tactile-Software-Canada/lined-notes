@@ -250,7 +250,6 @@ export class SessionsManager {
     };
     const date = new Date().toISOString().slice(0, 10);
     downloadText(`lined-notes-backup-${date}.json`, JSON.stringify(backup, null, 2), 'application/json');
-    showToast(`Backed up ${sessions.length} project${sessions.length === 1 ? '' : 's'}`);
   }
 
   async restoreFromFile(file) {
@@ -287,7 +286,6 @@ export class SessionsManager {
 
     await this.updateProjectsCountBadge();
     await this.renderSessionsList(this.searchInput ? this.searchInput.value : '');
-    showToast(`Restored ${created} new and merged ${merged} existing project${merged === 1 ? '' : 's'}`, false, null, 5000);
   }
 
   async autoRestoreSession() {
@@ -330,7 +328,6 @@ export class SessionsManager {
             state.notes = data.notes;
             state.emit('noteschange');
             state.emit('timelinechanged');
-            showToast(`Restored ${state.notes.length} notes for ${state.mediaTitle || 'session'}`);
           } else {
             // Notes already in memory (e.g. imported before the media was opened): merge, don't discard either side
             const knownIds = new Set(state.notes.map(n => String(n.id)));
@@ -339,7 +336,6 @@ export class SessionsManager {
               state.notes = [...state.notes, ...added].sort((a, b) => a.start - b.start);
               state.emit('noteschange');
               state.emit('timelinechanged');
-              showToast(`Merged ${added.length} saved notes for ${state.mediaTitle || 'session'}`);
             }
           }
         }
@@ -667,7 +663,6 @@ export class SessionsManager {
         data.originalFileName = state.mediaFile.name;
       }
       await this.db.set(key, data);
-      showToast(`Project renamed to "${trimmed}"`);
     } catch (err) {
       console.error('Failed to persist renamed session:', err);
       showToast('Error saving project name');
@@ -681,7 +676,6 @@ export class SessionsManager {
   async openSessionByKey(key, options = {}) {
     if (state.getStorageKey() === key && !state.detachedMode) {
       this.closeSessionsModal();
-      showToast('Session already active');
       return;
     }
 
@@ -735,7 +729,6 @@ export class SessionsManager {
       state.emit('noteschange');
       state.emit('timelinechanged');
       this.closeSessionsModal();
-      showToast(`Restored ${state.notes.length} notes for ${fileName}`);
       return;
     }
 
@@ -842,12 +835,8 @@ export class SessionsManager {
 
     // Reopen the remembered file straight away when the browser lets us
     if (state.detachedFileHandle && options.autoReopen !== false) {
-      const result = await this.reopenLinkedMedia({ quiet: true });
-      if (result !== 'needs-gesture') return; // attached, link set aside (toast shown) or the user moved on
-      showToast(`Loaded ${fileName} (${state.notes.length} notes). Click "Reopen" to attach the media file.`, false, null, 5000);
-      return;
+      await this.reopenLinkedMedia({ quiet: true });
     }
-    showToast(`Loaded ${fileName} (${state.notes.length} notes in review mode)`);
   }
 
   /** Shows the Reopen button only while the detached project has a remembered file. */
@@ -973,7 +962,6 @@ export class SessionsManager {
     await this.updateProjectsCountBadge();
     const query = this.searchInput ? this.searchInput.value : '';
     await this.renderSessionsList(query);
-    showToast('Saved project deleted');
   }
 
   filterSessionsList(val) {
