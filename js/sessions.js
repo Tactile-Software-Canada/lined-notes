@@ -401,7 +401,7 @@ export class SessionsManager {
   async renderSessionsList(filterQuery = '') {
     if (!this.sessionsList) return;
     if (!this.sessionsList.hasChildNodes() || this.sessionsList.querySelector('.sessions-empty')) {
-      this.sessionsList.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);font-size:12px;">Loading saved sessions…</div>';
+      this.sessionsList.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;">Loading saved sessions…</div>';
     }
 
     const rawSessions = await this.db.getAllSessions();
@@ -477,12 +477,12 @@ export class SessionsManager {
       let typeBadge = '';
       if (item.data?.sourceType === 'youtube' || item.data?.youtubeVideoId) {
         mediaIconSvg = `<svg viewBox="0 0 24 24" fill="#ff0000" width="16" height="16"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`;
-        typeBadge = '<span class="session-badge-type" style="background:rgba(255,0,0,0.12);color:#ff4e45;border:1px solid rgba(255,0,0,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;font-family:var(--font-mono);">YouTube</span>';
+        typeBadge = '<span class="session-badge-type" style="background:rgba(255,0,0,0.12);color:#ff4e45;border:1px solid rgba(255,0,0,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;">YouTube</span>';
       } else if (item.data?.sourceType === 'url') {
         mediaIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" width="16" height="16"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
-        typeBadge = '<span class="session-badge-type" style="background:rgba(56,189,248,0.12);color:var(--accent-cyan);border:1px solid rgba(56,189,248,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;font-family:var(--font-mono);">Web Video</span>';
+        typeBadge = '<span class="session-badge-type" style="background:rgba(56,189,248,0.12);color:var(--accent-cyan);border:1px solid rgba(56,189,248,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;">Web Video</span>';
       } else if (isFileHandle(item.data?.fileHandle)) {
-        typeBadge = '<span class="session-badge-type" style="background:rgba(112,151,117,0.14);color:#709775;border:1px solid rgba(112,151,117,0.3);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;font-family:var(--font-mono);" title="The media file is remembered: opening this project reopens it without browsing">Linked</span>';
+        typeBadge = '<span class="session-badge-type" style="background:rgba(112,151,117,0.14);color:#709775;border:1px solid rgba(112,151,117,0.3);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;" title="The media file is remembered: opening this project reopens it without browsing">Linked</span>';
       }
 
       const fileInfoHtml = `
@@ -526,7 +526,7 @@ export class SessionsManager {
 
           <div class="session-card-meta">
             <span><strong>${noteCount}</strong> note${noteCount === 1 ? '' : 's'}</span>
-            ${duration > 0 ? `<span>•</span><span>${formatTime(duration)}</span>` : ''}
+            ${duration > 0 ? `<span>•</span><span class="session-card-duration">${formatTime(duration)}</span>` : ''}
             ${fileSize > 0 ? `<span>•</span><span>${formatBytes(fileSize)}</span>` : ''}
           </div>
 

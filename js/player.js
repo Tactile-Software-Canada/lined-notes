@@ -249,7 +249,6 @@ export class PlayerController {
       state.mediaUrl = URL.createObjectURL(file);
 
       this.updateMediaUI(file);
-      showToast(`Attached ${file.name} to session "${preservedTitle}"`);
       this.generateWaveformPeaks(file);
 
       state.emit('filereset');

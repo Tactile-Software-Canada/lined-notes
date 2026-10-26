@@ -135,7 +135,7 @@ modal-dialog[open],
 }
 
 .fmt-badge {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-sm);
   font-weight: var(--fw-bold);
   color: var(--accent-primary);
@@ -163,7 +163,7 @@ modal-dialog[open],
 }
 
 .shortcut-keys {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--accent-primary);
   text-align: right;
 }
@@ -370,9 +370,8 @@ modal-dialog[open],
 
 .session-badge-current {
   font-size: var(--text-2xs);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: var(--fw-bold);
-  text-transform: uppercase;
   background: var(--accent-primary);
   color: #ffffff;
   padding: 2px 6px;
@@ -382,7 +381,7 @@ modal-dialog[open],
 
 .session-time-ago {
   font-size: var(--text-2xs);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   color: var(--text-muted);
   flex-shrink: 0;
 }
@@ -393,8 +392,13 @@ modal-dialog[open],
   gap: 8px;
   font-size: var(--text-xs);
   color: var(--text-secondary);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   flex-wrap: wrap;
+}
+
+.session-card-duration {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .session-tags-row {
@@ -411,7 +415,7 @@ modal-dialog[open],
   border: 1px solid var(--tag-color, var(--accent-primary));
   color: var(--tag-color, var(--accent-primary));
   background: rgba(217, 119, 66, 0.08);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .session-card-actions {
@@ -470,7 +474,7 @@ toast-notification,
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   max-width: calc(100% - 32px);
   white-space: nowrap;
 }
@@ -669,7 +673,7 @@ toast-notification .toast-btn,
 }
 
 .url-hint-pill {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
   padding: 3px 8px;
   border-radius: var(--radius-full);

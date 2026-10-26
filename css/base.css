@@ -23,6 +23,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Browsers draw <kbd> in monospace by default; monospace is reserved for timecodes */
+kbd {
+  font-family: inherit;
+}
+
 /* Scrollbars */
 * {
   scrollbar-width: thin;

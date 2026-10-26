@@ -274,7 +274,7 @@ html[data-theme="light"] #drop-zone:hover {
 }
 
 .drop-pill {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
   padding: 2px 7px;
   border-radius: var(--radius-full);
@@ -371,10 +371,8 @@ html[data-theme="light"] #drop-zone:hover {
 
 .detached-badge {
   font-size: var(--text-2xs);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: var(--fw-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--accent-primary);
   background: var(--accent-dim);
   padding: 3px 10px;
@@ -545,7 +543,7 @@ html[data-theme="light"] #drop-zone:hover {
 }
 
 .fullscreen-exit-kbd {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
   color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.08);

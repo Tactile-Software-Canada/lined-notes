@@ -46,7 +46,7 @@
 .onboarding-illustration .accent-fill { fill: var(--accent-primary); }
 
 .onboarding-step-count {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
   color: var(--text-muted);
   margin-bottom: 4px;
@@ -75,7 +75,7 @@
   border-bottom-width: 2px;
   border-radius: var(--radius-sm);
   padding: 0 5px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
   color: var(--text-primary);
 }

@@ -166,7 +166,7 @@
 
   .mobile-tab-badge {
     font-size: var(--text-2xs);
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     padding: 1px 5px;
     border-radius: var(--radius-full);
     background: var(--bg-surface);
@@ -347,7 +347,7 @@
     border-radius: 8px;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     font-size: var(--text-2xs);
     font-weight: var(--fw-semibold);
     color: var(--accent-primary);

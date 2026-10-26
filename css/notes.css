@@ -34,8 +34,6 @@
 .notes-title-label {
   font-size: var(--text-xs);
   font-weight: var(--fw-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -43,7 +41,7 @@
 }
 
 .notes-count-badge {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
   padding: 2px 7px;
   border-radius: var(--radius-full);
@@ -104,7 +102,7 @@
 
 .tag-chip {
   font-size: var(--text-2xs);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   padding: 2px 8px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border);
