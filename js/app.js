@@ -904,8 +904,8 @@ export class LinedNotesApp {
   }
 
   setInPoint() {
-    // A second press while a region is still being created (A set, no B) cancels it
-    if (state.APoint !== null && state.BPoint === null) {
+    // A second press clears the range, whether it's still being created or complete
+    if (state.APoint !== null) {
       this.notes.clearRange();
     } else {
       this.notes.setAPoint();
