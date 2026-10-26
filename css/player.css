@@ -225,6 +225,7 @@ html[data-theme="light"] #drop-zone:hover {
   border-radius: var(--radius-lg);
   background: var(--bg-card);
   transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  width: 100%;
   max-width: 440px;
   text-align: center;
 }
@@ -258,24 +259,6 @@ html[data-theme="light"] #drop-zone:hover {
   color: var(--text-primary);
 }
 
-
-.drop-pills {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.drop-pill {
-  font-family: var(--font-sans);
-  font-size: var(--text-2xs);
-  padding: 2px 7px;
-  border-radius: var(--radius-full);
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-}
 
 .drop-url-bar {
   display: flex;

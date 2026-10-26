@@ -244,10 +244,6 @@
     font-size: var(--text-md);
   }
 
-  .drop-pills {
-    margin-top: 4px;
-  }
-
   .audio-disc-card {
     padding: 18px 14px;
     width: 90%;
