@@ -78,7 +78,7 @@
         <span class="btn-text">New Project</span>
       </button>
       <button class="btn btn-ghost btn-sm btn-open-media" id="open-media-btn"
-        onclick="document.getElementById('file-picker').click()" title="Open Audio or Video File"
+        onclick="app.openMediaPicker()" title="Open Audio or Video File"
         aria-label="Open Audio or Video File">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
@@ -205,7 +205,7 @@
             </svg>
             <span>New Project</span>
           </div>
-          <div class="dropdown-item" onclick="document.getElementById('file-picker').click(); app.closeMobileMenu();">
+          <div class="dropdown-item" onclick="app.openMediaPicker(); app.closeMobileMenu();">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="17 8 12 3 7 8" />
@@ -311,7 +311,7 @@
       <!-- PLAYER AREA -->
       <div id="player-area">
         <!-- Drag & Drop Overlay -->
-        <div id="drop-zone" onclick="document.getElementById('file-picker').click()">
+        <div id="drop-zone" onclick="app.openMediaPicker()">
           <div class="drop-box">
             <div class="drop-icon-wrap">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -397,7 +397,15 @@
             <div class="detached-desc">Viewing saved annotations without media file attached. Full note editing,
               searching, timeline navigation, and export are active.</div>
             <div class="detached-actions">
-              <button class="btn btn-primary btn-sm" onclick="document.getElementById('file-picker').click()">
+              <button class="btn btn-primary btn-sm" id="detached-reopen-btn" style="display:none"
+                onclick="app.reopenLinkedMedia()" title="Reopen the media file this project was made from">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                  <polyline points="1 4 1 10 7 10"></polyline>
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                Reopen <span class="detached-reopen-name" id="detached-reopen-name"></span>
+              </button>
+              <button class="btn btn-primary btn-sm" id="detached-attach-btn" onclick="app.openMediaPicker()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="17 8 12 3 7 8"></polyline>

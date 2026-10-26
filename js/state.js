@@ -11,6 +11,7 @@ class StateStore {
 
     // Media & Playback State
     this.mediaFile = null;
+    this.mediaFileHandle = null; // FileSystemFileHandle of mediaFile when the browser provided one
     this.mediaUrl = null;
     this.mediaSourceType = null; // 'file' | 'youtube' | 'url' | null
     this.externalUrl = null;
@@ -31,6 +32,7 @@ class StateStore {
     this.detachedSessionName = null;
     this.detachedOriginalFileName = null;
     this.detachedSessionSize = 0;
+    this.detachedFileHandle = null; // remembered handle of the detached project's file, if any
 
     // Timeline Zoom & Pan
     this.zoom = 1;

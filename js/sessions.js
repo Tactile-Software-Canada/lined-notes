@@ -7,6 +7,10 @@ import { state } from './state.js';
 import { APP_CONFIG } from './config.js';
 import { escapeHtml, timeAgo, formatTime, formatBytes, showToast, confirmDialog, downloadText } from './utils.js';
 import { normalizeNote } from './import.js';
+import {
+  supportsFileHandles, isFileHandle, stripFileHandle, fileSessionKey,
+  queryHandlePermission, requestHandlePermission, readHandleFile
+} from './file-handles.js';
 
 /**
  * Parses and validates a "Back Up All" file. Returns [{ key, data }] or throws with a user-facing message.
@@ -26,7 +30,7 @@ export function parseBackup(text) {
     .map(s => ({
       key: s.key,
       data: {
-        ...s.data,
+        ...stripFileHandle(s.data), // handles never survive JSON: drop whatever a backup carries under that name
         fileName: typeof s.data.fileName === 'string' ? s.data.fileName : 'Untitled Media',
         notes: (Array.isArray(s.data.notes) ? s.data.notes : [])
           .filter(n => n && typeof n === 'object')
@@ -134,11 +138,14 @@ export class SessionsManager {
       notes: state.notes,
       sourceType: state.mediaSourceType || (state.mediaFile ? 'file' : 'detached'),
       url: state.externalUrl || null,
-      youtubeVideoId: state.youtubeVideoId || null
+      youtubeVideoId: state.youtubeVideoId || null,
+      // Lets the project reopen its local file without the file picker (Chromium desktop); null elsewhere
+      fileHandle: state.mediaFileHandle || state.detachedFileHandle || null
     };
 
     try {
       state.isDirty = true;
+      await this.preserveStoredFileHandle(key, payload);
       await this.db.set(key, payload);
       state.isDirty = false; // Reset dirty state on auto-save
       this.updateProjectsCountBadge();
@@ -146,6 +153,28 @@ export class SessionsManager {
     } catch (e) {
       console.warn('Persistence save error:', e);
     }
+  }
+
+  /**
+   * A file project saved without a handle in memory (attached through the classic file input, or a
+   * detached project whose link was set aside) keeps the handle already stored for it, so a save never
+   * silently drops the link. Misses are remembered so handle-less projects don't pay a read per save.
+   */
+  async preserveStoredFileHandle(key, payload) {
+    if (payload.fileHandle) {
+      if (this._noStoredHandleKey === key) this._noStoredHandleKey = null;
+      return;
+    }
+    if (!supportsFileHandles()) return;
+    if (payload.sourceType !== 'file' && payload.sourceType !== 'detached') return;
+    if (this._noStoredHandleKey === key) return;
+    const existing = await this.db.get(key);
+    if (!existing || !isFileHandle(existing.fileHandle)) {
+      this._noStoredHandleKey = key;
+      return;
+    }
+    payload.fileHandle = existing.fileHandle;
+    if (state.mediaFile && state.getStorageKey() === key) state.mediaFileHandle = existing.fileHandle;
   }
 
   /**
@@ -173,7 +202,7 @@ export class SessionsManager {
       type: 'backup',
       version: APP_CONFIG.version,
       exportedAt: new Date().toISOString(),
-      sessions: sessions.map(s => ({ key: s.key, data: s.data }))
+      sessions: sessions.map(s => ({ key: s.key, data: stripFileHandle(s.data) }))
     };
     const date = new Date().toISOString().slice(0, 10);
     downloadText(`lined-notes-backup-${date}.json`, JSON.stringify(backup, null, 2), 'application/json');
@@ -269,7 +298,9 @@ export class SessionsManager {
           }
         }
       }
-      if (hadInMemoryNotes) this.saveSession();
+      // A project saved before the browser could remember its file gets linked the first time it is opened from disk
+      const linksNewHandle = Boolean(data && state.mediaFileHandle && !isFileHandle(data.fileHandle));
+      if (hadInMemoryNotes || linksNewHandle) this.saveSession();
     } catch (e) {
       console.warn('Persistence restore error:', e);
     }
@@ -357,7 +388,7 @@ export class SessionsManager {
             </div>
             <div class="sessions-empty-title">No Saved Projects Yet</div>
             <div class="sessions-empty-desc">Open an audio or video file and start creating notes. Your annotations will automatically save here so you can revisit them anytime.</div>
-            <button class="btn btn-primary btn-sm" onclick="document.getElementById('file-picker').click(); app.sessions.closeSessionsModal();">
+            <button class="btn btn-primary btn-sm" onclick="app.openMediaPicker(); app.sessions.closeSessionsModal();">
               Open Media File
             </button>
           </div>`;
@@ -404,6 +435,8 @@ export class SessionsManager {
       } else if (item.data?.sourceType === 'url') {
         mediaIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" width="16" height="16"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
         typeBadge = '<span class="session-badge-type" style="background:rgba(56,189,248,0.12);color:var(--accent-cyan);border:1px solid rgba(56,189,248,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;font-family:var(--font-mono);">Web Video</span>';
+      } else if (isFileHandle(item.data?.fileHandle)) {
+        typeBadge = '<span class="session-badge-type" style="background:rgba(112,151,117,0.14);color:#709775;border:1px solid rgba(112,151,117,0.3);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;font-family:var(--font-mono);" title="The media file is remembered: opening this project reopens it without browsing">Linked</span>';
       }
 
       const fileInfoHtml = `
@@ -595,7 +628,11 @@ export class SessionsManager {
     }
   }
 
-  async openSessionByKey(key) {
+  /**
+   * @param {string} key
+   * @param {{ autoReopen?: boolean }} [options] autoReopen (default true): reopen a remembered local file right away
+   */
+  async openSessionByKey(key, options = {}) {
     if (state.getStorageKey() === key && !state.detachedMode) {
       this.closeSessionsModal();
       showToast('Session already active');
@@ -692,8 +729,10 @@ export class SessionsManager {
     state.detachedSessionName = fileName;
     state.detachedOriginalFileName = originalFileName;
     state.detachedSessionSize = fileSize;
+    state.detachedFileHandle = isFileHandle(data.fileHandle) ? data.fileHandle : null;
     state.mediaTitle = fileName;
     state.mediaFile = null;
+    state.mediaFileHandle = null;
     // Clear the previous source so getStorageKey() resolves to the detached session key
     // (otherwise edits would be saved over the previously active YouTube/URL project)
     state.mediaSourceType = null;
@@ -751,12 +790,92 @@ export class SessionsManager {
     state.emit('noteschange');
     state.emit('timelinechanged');
 
+    this.updateReopenButton();
     this.closeSessionsModal();
+
+    // Reopen the remembered file straight away when the browser lets us
+    if (state.detachedFileHandle && options.autoReopen !== false) {
+      const result = await this.reopenLinkedMedia({ quiet: true });
+      if (result !== 'needs-gesture') return; // attached, link set aside (toast shown) or the user moved on
+      showToast(`Loaded ${fileName} (${state.notes.length} notes). Click "Reopen" to attach the media file.`, false, null, 5000);
+      return;
+    }
     showToast(`Loaded ${fileName} (${state.notes.length} notes in review mode)`);
   }
 
+  /** Shows the Reopen button only while the detached project has a remembered file. */
+  updateReopenButton() {
+    const linked = Boolean(state.detachedMode && state.detachedFileHandle);
+    const reopenBtn = document.getElementById('detached-reopen-btn');
+    if (reopenBtn) {
+      reopenBtn.style.display = linked ? '' : 'none';
+      const nameEl = document.getElementById('detached-reopen-name');
+      if (nameEl) nameEl.textContent = linked ? (state.detachedFileHandle.name || state.detachedOriginalFileName || 'media file') : '';
+    }
+    const attachBtn = document.getElementById('detached-attach-btn');
+    if (attachBtn) {
+      attachBtn.classList.toggle('btn-primary', !linked);
+      attachBtn.classList.toggle('btn-ghost', linked);
+    }
+  }
+
+  /**
+   * Reopens the detached project's remembered file through its stored handle.
+   * Returns 'attached', 'needs-gesture' (the browser wants a click on Reopen first, or access was declined),
+   * 'lost' (file missing or changed: the link is set aside for this visit) or 'cancelled' (the user moved on).
+   * Chrome only shows its permission prompt during a user gesture, so the automatic attempt right after
+   * the Open click usually prompts, while one made later just returns 'needs-gesture'.
+   */
+  async reopenLinkedMedia({ quiet = false } = {}) {
+    const handle = state.detachedFileHandle;
+    const key = state.detachedSessionKey;
+    if (!handle || !key) return 'cancelled';
+    const stillCurrent = () => state.detachedMode && state.detachedSessionKey === key && state.detachedFileHandle === handle;
+
+    let permission = await queryHandlePermission(handle);
+    if (permission !== 'granted' && stillCurrent()) {
+      permission = await requestHandlePermission(handle);
+    }
+    if (!stillCurrent()) return 'cancelled';
+    if (permission !== 'granted') {
+      if (!quiet) {
+        showToast(permission === 'denied'
+          ? 'Access to the file was declined. Use "Attach Media File" to pick it manually.'
+          : 'Click "Reopen" to let the browser open the remembered file.', false, null, 5000);
+      }
+      return 'needs-gesture';
+    }
+
+    const { file, error } = await readHandleFile(handle);
+    if (!stillCurrent()) return 'cancelled';
+    if (!file) {
+      this.setAsideLinkedMedia(error === 'missing'
+        ? 'The remembered media file was moved or deleted. Attach it to continue.'
+        : 'The remembered media file could not be opened. Attach it to continue.');
+      return 'lost';
+    }
+    // Projects are keyed by file name and size: a renamed or re-encoded file would save under another key
+    if (fileSessionKey(file) !== key) {
+      this.setAsideLinkedMedia(`The remembered file is now "${file.name}" (${formatBytes(file.size)}), which no longer matches this project. Attach the media file manually.`);
+      return 'lost';
+    }
+    this.player.loadFile(file, { handle });
+    return 'attached';
+  }
+
+  /**
+   * Hides Reopen for this visit without touching the stored handle: the file may simply be on a
+   * drive that isn't mounted right now, and attaching a file again replaces the link anyway.
+   */
+  setAsideLinkedMedia(message) {
+    state.detachedFileHandle = null;
+    this.updateReopenButton();
+    if (message) showToast(message, false, null, 6000);
+  }
+
   async exportSessionByKey(key) {
-    await this.openSessionByKey(key);
+    // Reviewing or exporting shouldn't raise a file permission prompt: the Reopen button stays available
+    await this.openSessionByKey(key, { autoReopen: false });
     state.emit('requestexport');
   }
 
@@ -782,6 +901,7 @@ export class SessionsManager {
       state.detachedSessionName = null;
       state.detachedOriginalFileName = null;
       state.detachedSessionSize = 0;
+      state.detachedFileHandle = null;
       state.mediaSourceType = null;
       state.externalUrl = null;
       state.youtubeVideoId = null;

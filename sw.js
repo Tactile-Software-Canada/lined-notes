@@ -53,6 +53,7 @@ const PRECACHE_ASSETS = [
   './js/state.js',
   './js/utils.js',
   './js/db.js',
+  './js/file-handles.js',
   './js/player.js',
   './js/timeline.js',
   './js/notes.js',

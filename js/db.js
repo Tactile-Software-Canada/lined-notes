@@ -4,6 +4,7 @@
    ========================================================================== */
 
 import { APP_CONFIG } from './config.js';
+import { omitFileHandle } from './file-handles.js';
 
 export class LinedNotesDB {
   constructor() {
@@ -61,10 +62,11 @@ export class LinedNotesDB {
     });
   }
 
+  /** File handles only survive structured cloning, so the localStorage fallback leaves them out. */
   async set(key, data) {
     await this.initPromise;
     if (!this.db) {
-      try { localStorage.setItem(key, JSON.stringify(data)); } catch (err) { }
+      try { localStorage.setItem(key, JSON.stringify(data, omitFileHandle)); } catch (err) { }
       return;
     }
     return new Promise((resolve) => {
@@ -75,11 +77,11 @@ export class LinedNotesDB {
         tx.oncomplete = () => resolve();
         // A commit-time failure (e.g. quota exceeded) only fires 'abort', never 'error'
         tx.onerror = tx.onabort = () => {
-          try { localStorage.setItem(key, JSON.stringify(data)); } catch (err) { }
+          try { localStorage.setItem(key, JSON.stringify(data, omitFileHandle)); } catch (err) { }
           resolve();
         };
       } catch (err) {
-        try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) { }
+        try { localStorage.setItem(key, JSON.stringify(data, omitFileHandle)); } catch (e) { }
         resolve();
       }
     });

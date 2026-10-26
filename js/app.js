@@ -14,6 +14,7 @@ import { ExportManager } from './export.js';
 import { ImportManager } from './import.js';
 import { OnboardingGuide } from './onboarding.js';
 import { showToast, parseLaunchParams, formatBytes } from './utils.js';
+import { supportsFileHandles, pickMediaFile, getDroppedFileHandle } from './file-handles.js';
 
 export class LinedNotesApp {
   constructor() {
@@ -424,7 +425,7 @@ export class LinedNotesApp {
         }
         const files = e.dataTransfer?.files;
         if (files && files.length > 0) {
-          this.player.loadFile(files[0]);
+          this.loadDroppedFile(files[0], e.dataTransfer);
         }
       }
     });
@@ -450,7 +451,7 @@ export class LinedNotesApp {
 
       const files = e.dataTransfer.files;
       if (files && files.length > 0) {
-        this.player.loadFile(files[0]);
+        this.loadDroppedFile(files[0], e.dataTransfer);
       }
     });
 
@@ -633,7 +634,7 @@ export class LinedNotesApp {
         const handle = launchParams && launchParams.files && launchParams.files[0];
         if (!handle) return;
         try {
-          this.player.loadFile(await handle.getFile());
+          this.player.loadFile(await handle.getFile(), { handle });
         } catch (err) {
           console.warn('[PWA] Could not open launched file:', err);
           showToast('Could not open that file');
@@ -727,6 +728,39 @@ export class LinedNotesApp {
     if (picker) picker.value = '';
   }
 
+  /**
+   * Opens a media file. Browsers with the File System Access API hand back a handle that the project
+   * remembers, so opening the project later doesn't need the file picker again. Elsewhere, or if the
+   * picker refuses to open, the hidden <input type="file"> is used as before.
+   */
+  async openMediaPicker() {
+    const picker = document.getElementById('file-picker');
+    if (!supportsFileHandles()) {
+      if (picker) picker.click();
+      return;
+    }
+    let picked;
+    try {
+      picked = await pickMediaFile();
+    } catch (err) {
+      console.warn('[Media] File picker unavailable, falling back to the file input:', err);
+      if (picker) picker.click();
+      return;
+    }
+    if (picked) this.player.loadFile(picked.file, { handle: picked.handle });
+  }
+
+  /** Loads a dropped file, keeping its handle when the browser provides one. Call it from the drop handler itself. */
+  async loadDroppedFile(file, dataTransfer) {
+    const handle = await getDroppedFileHandle(dataTransfer);
+    this.player.loadFile(file, { handle });
+  }
+
+  /** Detached stage "Reopen" button: attaches the project's remembered media file. */
+  reopenLinkedMedia() {
+    this.sessions.reopenLinkedMedia();
+  }
+
   newProject() {
     const hasMedia = state.hasMedia();
     if (!hasMedia && state.notes.length === 0) {
@@ -773,6 +807,7 @@ export class LinedNotesApp {
 
     // Clear application state
     state.mediaFile = null;
+    state.mediaFileHandle = null;
     state.mediaSourceType = null;
     state.externalUrl = null;
     state.youtubeVideoId = null;
@@ -781,6 +816,7 @@ export class LinedNotesApp {
     state.detachedSessionKey = null;
     state.detachedSessionName = null;
     state.detachedSessionSize = 0;
+    state.detachedFileHandle = null;
     state.notes = [];
     state.isDirty = false;
     state.activeNoteId = null;

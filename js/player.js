@@ -6,6 +6,7 @@ import { state } from './state.js';
 import { APP_CONFIG } from './config.js';
 import { formatTime, formatBytes, showToast, parseMediaUrl } from './utils.js';
 import { extractAudioFromWebM, calculateWaveformPeaks } from './waveform-utils.js';
+import { isFileHandle } from './file-handles.js';
 
 export class PlayerController {
   constructor() {
@@ -201,8 +202,13 @@ export class PlayerController {
     }
   }
 
-  async loadFile(file) {
+  /**
+   * @param {File} file
+   * @param {{ handle?: FileSystemFileHandle }} [options] handle: lets the project reopen this file later
+   */
+  async loadFile(file, options = {}) {
     if (!file) return;
+    const handle = isFileHandle(options.handle) ? options.handle : null;
 
     // Check if attaching to an existing detached review session. The size must match too: a different
     // video with the same name (video.mp4, IMG_0001.MOV…) would otherwise get this project's notes
@@ -219,6 +225,9 @@ export class PlayerController {
     if (isDetachedMatch) {
       this.resetPlaybackState();
       state.mediaFile = file;
+      // Keep the remembered handle when the file was attached through the classic file input
+      state.mediaFileHandle = handle || state.detachedFileHandle;
+      state.detachedFileHandle = null;
       state.mediaSourceType = 'file';
       state.externalUrl = null;
       state.youtubeVideoId = null;
@@ -263,6 +272,7 @@ export class PlayerController {
     state.detachedSessionName = null;
     state.detachedOriginalFileName = null;
     state.detachedSessionSize = 0;
+    state.detachedFileHandle = null;
     const detachedStage = document.getElementById('detached-stage');
     if (detachedStage) detachedStage.style.display = 'none';
     if (this.youtubeStage) this.youtubeStage.classList.remove('active');
@@ -272,6 +282,7 @@ export class PlayerController {
     state.youtubeVideoId = null;
     state.mediaTitle = file.name;
     state.mediaFile = file;
+    state.mediaFileHandle = handle;
     state.isAudio = file.type.startsWith('audio/');
     state.notes = orphanNotes;
     state.activeNoteId = null;
@@ -676,6 +687,8 @@ export class PlayerController {
     state.youtubeVideoId = parsed.videoId;
     state.mediaTitle = options.title || parsed.title;
     state.mediaFile = null;
+    state.mediaFileHandle = null;
+    state.detachedFileHandle = null;
     state.isAudio = false;
 
     // Eagerly resolve YouTube title via public oEmbed API if title is placeholder
@@ -940,6 +953,8 @@ export class PlayerController {
     state.youtubeVideoId = null;
     state.mediaTitle = options.title || parsed.title;
     state.mediaFile = null;
+    state.mediaFileHandle = null;
+    state.detachedFileHandle = null;
     state.isAudio = !!parsed.isAudio;
 
     if (state.mediaUrl && state.mediaUrl.startsWith('blob:')) {

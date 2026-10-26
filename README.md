@@ -33,7 +33,8 @@ No media files or notes are ever uploaded to an external server or cloud service
 - **Local File Playback:** Drag and drop or browse local video and audio files (`.mp4`, `.mkv`, `.webm`, `.mov`, `.avi`, `.mp3`, `.wav`, `.m4a`, `.flac`, `.ogg`, `.opus`, `.aac`).
 - **YouTube Integration:** Paste any YouTube video link (regular links, `youtu.be`, `/shorts/`, or `/embed/`) with automatic video title synchronization and timeline scrubbing.
 - **External Video Streams:** Direct playback of remote HTTP/HTTPS video and audio streams.
-- **Detached Review Mode:** Load and review saved project annotations, search notes, and export reports even without the source media file attached.
+- **Linked Media Files:** In Chromium-based desktop browsers (Chrome, Edge, Brave…) each project remembers the media file it was made from via the File System Access API. Opening the project reopens the file after a single permission click instead of a trip through the file picker; an installed PWA can choose *Allow on every visit* to skip even that.
+- **Detached Review Mode:** Load and review saved project annotations, search notes, and export reports even without the source media file attached (or while the browser can't reopen it).
 
 ### 📊 Interactive Canvas Waveform & Timeline
 - **Hardware-Accelerated Timeline:** Smooth canvas scrubbing, high-DPI scaling, and responsive hover timecodes.
@@ -59,7 +60,7 @@ No media files or notes are ever uploaded to an external server or cloud service
 - **IndexedDB Auto-Save:** Changes are persisted locally across reloads and media changes in `LinedNotesDB`.
 - **Project Switcher & Manager:** Browse all past sessions, search by media title or tags, restore projects, and manage stored sessions.
 - **Inline Project Renaming:** Rename session titles directly from the project manager with confirm/cancel controls.
-- **Back Up & Restore:** Download every project as one JSON file and restore it later (restores merge with existing projects).
+- **Back Up & Restore:** Download every project as one JSON file and restore it later (restores merge with existing projects). Backups carry notes, not file links: a restored project opens in Detached Review Mode until its media file is attached once more.
 - **Persistent Storage:** Asks the browser to protect saved projects from automatic clean-up; usage is shown in Settings.
 
 ### 📱 Responsive PWA & Mobile Support
@@ -184,6 +185,7 @@ lined-notes/
 │   ├── notes.js              # Annotation CRUD, tagging, and thumbnail snapshot logic
 │   ├── sessions.js           # Multi-project session management & persistence
 │   ├── db.js                 # IndexedDB wrapper (LinedNotesDB)
+│   ├── file-handles.js       # File System Access API: remembers & reopens local media files
 │   ├── export.js             # Multi-format serializers (JSON, MD, SRT, VTT, CSV, HTML)
 │   ├── import.js             # Multi-format deserializers (JSON, SRT, VTT, CSV)
 │   ├── waveform-utils.js     # Web Audio API decode utilities and peak calculation

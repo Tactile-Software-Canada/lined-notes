@@ -405,6 +405,15 @@ html[data-theme="light"] #drop-zone:hover {
   justify-content: center;
 }
 
+.detached-reopen-name {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
 /* Flash overlay for note capture */
 #capture-flash {
   position: absolute;

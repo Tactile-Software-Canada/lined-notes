@@ -223,3 +223,94 @@ test('onboarding steps provide desktop and touch copy', () => {
   assert.match(capture.body(false), /<kbd>N<\/kbd>/);
   assert.doesNotMatch(capture.body(true), /<kbd>/);
 });
+
+// ─── Linked media files (File System Access API helpers) ───────────────
+
+import {
+  isFileHandle, omitFileHandle, stripFileHandle, fileSessionKey,
+  getDroppedFileHandle, queryHandlePermission, requestHandlePermission, readHandleFile
+} from '../js/file-handles.js';
+import { state } from '../js/state.js';
+
+// Handles are host objects; a minimal stand-in with the methods the app relies on
+const fakeHandle = (overrides = {}) => ({
+  kind: 'file',
+  name: 'clip.mp4',
+  getFile: async () => ({ name: 'clip.mp4', size: 10 }),
+  queryPermission: async () => 'prompt',
+  requestPermission: async () => 'granted',
+  ...overrides
+});
+
+test('isFileHandle only accepts handle-shaped objects', () => {
+  assert.equal(isFileHandle(fakeHandle()), true);
+  assert.equal(isFileHandle({ kind: 'directory', getFile() { } }), false);
+  assert.equal(isFileHandle({}), false);       // what a handle becomes after a JSON round trip
+  assert.equal(isFileHandle(null), false);
+  assert.equal(isFileHandle('clip.mp4'), false);
+});
+
+test('file handles stay out of JSON but other fields survive', () => {
+  const data = { fileName: 'clip.mp4', notes: [{ id: 1 }], fileHandle: fakeHandle() };
+  assert.deepEqual(JSON.parse(JSON.stringify(data, omitFileHandle)), { fileName: 'clip.mp4', notes: [{ id: 1 }] });
+  const stripped = stripFileHandle(data);
+  assert.equal('fileHandle' in stripped, false);
+  assert.equal(stripped.notes, data.notes);
+  assert.equal(isFileHandle(data.fileHandle), true, 'the original record is left alone');
+  assert.equal(stripFileHandle(null), null);
+});
+
+test('parseBackup drops anything a backup carries as fileHandle', () => {
+  const [entry] = parseBackup(JSON.stringify({
+    type: 'backup',
+    sessions: [{ key: 'ln_session_a.mp4_1', data: { fileName: 'a.mp4', fileHandle: {}, notes: [] } }]
+  }));
+  assert.equal('fileHandle' in entry.data, false);
+  // Merging such a restore into a linked project must keep the stored handle
+  const existing = { fileName: 'a.mp4', fileHandle: fakeHandle(), notes: [] };
+  assert.equal(isFileHandle(mergeSessionData(existing, entry.data).fileHandle), true);
+});
+
+test('fileSessionKey matches the key the state store saves a file under', () => {
+  const file = { name: 'a b.mp4', size: 1234 };
+  state.mediaSourceType = 'file';
+  state.mediaFile = file;
+  assert.equal(fileSessionKey(file), state.getStorageKey());
+  state.mediaFile = null;
+  state.mediaSourceType = null;
+});
+
+test('getDroppedFileHandle resolves the first dropped file and tolerates everything else', async () => {
+  const handle = fakeHandle();
+  const items = [
+    { kind: 'string' },
+    { kind: 'file', getAsFileSystemHandle: async () => handle },
+    { kind: 'file', getAsFileSystemHandle: async () => { throw new Error('nope'); } }
+  ];
+  assert.equal(await getDroppedFileHandle({ items }), handle);
+  assert.equal(await getDroppedFileHandle({ items: [{ kind: 'file', getAsFileSystemHandle: async () => ({ kind: 'directory' }) }] }), null);
+  assert.equal(await getDroppedFileHandle({ items: [{ kind: 'file', getAsFileSystemHandle: async () => { throw new Error('x'); } }] }), null);
+  assert.equal(await getDroppedFileHandle({ items: [{ kind: 'file' }] }), null, 'browser without the API');
+  assert.equal(await getDroppedFileHandle({ items: [] }), null);
+  assert.equal(await getDroppedFileHandle(null), null);
+});
+
+test('permission helpers report what the handle says and degrade safely', async () => {
+  assert.equal(await queryHandlePermission(fakeHandle()), 'prompt');
+  assert.equal(await requestHandlePermission(fakeHandle()), 'granted');
+  assert.equal(await queryHandlePermission(fakeHandle({ queryPermission: undefined })), 'granted', 'no permission model means readable');
+  // Chrome rejects requestPermission outside a user gesture: that just means a click is still needed
+  assert.equal(await requestHandlePermission(fakeHandle({ requestPermission: async () => { throw new DOMException('gesture', 'SecurityError'); } })), 'prompt');
+  assert.equal(await queryHandlePermission({}), 'denied');
+  assert.equal(await requestHandlePermission(null), 'denied');
+});
+
+test('readHandleFile classifies getFile failures', async () => {
+  const { file } = await readHandleFile(fakeHandle());
+  assert.equal(file.name, 'clip.mp4');
+  const failing = name => fakeHandle({ getFile: async () => { throw new DOMException('x', name); } });
+  assert.deepEqual(await readHandleFile(failing('NotFoundError')), { error: 'missing' });
+  assert.deepEqual(await readHandleFile(failing('NotAllowedError')), { error: 'denied' });
+  assert.deepEqual(await readHandleFile(failing('SecurityError')), { error: 'denied' });
+  assert.deepEqual(await readHandleFile(failing('InvalidStateError')), { error: 'failed' });
+});
