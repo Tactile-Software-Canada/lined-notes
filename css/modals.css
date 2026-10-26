@@ -579,6 +579,27 @@ toast-notification .toast-btn,
   line-height: 1.4;
 }
 
+/* About section below the settings list */
+.settings-about {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.settings-section-title {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.settings-about-text {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
 /* Modern Toggle Switch */
 .toggle-switch {
   position: relative;

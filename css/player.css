@@ -259,12 +259,6 @@ html[data-theme="light"] #drop-zone:hover {
 }
 
 
-.drop-desc {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
 .drop-pills {
   display: flex;
   gap: 6px;
