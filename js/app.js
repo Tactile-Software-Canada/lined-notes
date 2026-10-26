@@ -904,7 +904,12 @@ export class LinedNotesApp {
   }
 
   setInPoint() {
-    this.notes.setAPoint();
+    // A second press while a region is still being created (A set, no B) cancels it
+    if (state.APoint !== null && state.BPoint === null) {
+      this.notes.clearRange();
+    } else {
+      this.notes.setAPoint();
+    }
   }
 
   setOutPoint() {
@@ -913,10 +918,6 @@ export class LinedNotesApp {
 
   toggleLoop() {
     this.player.toggleLoop();
-  }
-
-  clearRange() {
-    this.notes.clearRange();
   }
 
   toggleMute() {

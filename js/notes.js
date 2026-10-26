@@ -246,13 +246,11 @@ export class NotesManager {
   }
 
   updateRangeStatusUI() {
-    const clearBtn = document.getElementById('clear-range-btn');
     const inBtn = document.getElementById('A-point-btn');
     const outBtn = document.getElementById('B-point-btn');
 
     if (inBtn) inBtn.classList.toggle('active', state.APoint !== null);
     if (outBtn) outBtn.classList.toggle('active', state.BPoint !== null);
-    if (clearBtn) clearBtn.style.display = state.APoint !== null ? 'inline-flex' : 'none';
   }
 
   async takeSnapshot(noteTime = null) {
