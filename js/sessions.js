@@ -122,6 +122,9 @@ export class SessionsManager {
       return;
     }
 
+    // Recorded before any await: a save still in flight when "New Project" forgets the key must not re-record it
+    this.rememberLastProject(key);
+
     const usedTags = Array.from(new Set(state.notes.map(n => n.tag).filter(Boolean)));
     const fileName = state.mediaTitle || (state.mediaFile ? state.mediaFile.name : (state.detachedSessionName || 'Untitled Media'));
     const originalFileName = state.mediaFile ? state.mediaFile.name : (state.detachedOriginalFileName || null);
@@ -153,6 +156,47 @@ export class SessionsManager {
     } catch (e) {
       console.warn('Persistence save error:', e);
     }
+  }
+
+  // ─── Last open project ───────────────────────────────────────────────
+  // The project that is active when the app is closed opens again on the next launch.
+  // "New Project" and deleting the project clear it, so a deliberately closed project stays closed.
+
+  rememberLastProject(key) {
+    if (!key) return;
+    try { localStorage.setItem(APP_CONFIG.lastProjectKey, key); } catch (e) { }
+  }
+
+  /** Clears the remembered project; with a key, only when that key is the remembered one. */
+  forgetLastProject(key = null) {
+    try {
+      if (key && localStorage.getItem(APP_CONFIG.lastProjectKey) !== key) return;
+      localStorage.removeItem(APP_CONFIG.lastProjectKey);
+    } catch (e) { }
+  }
+
+  getLastProjectKey() {
+    try { return localStorage.getItem(APP_CONFIG.lastProjectKey) || null; } catch (e) { return null; }
+  }
+
+  /**
+   * Reopens the project that was active when the app was last closed. Returns true when one was opened.
+   * Skipped when media is already loaded or isPreempted() says a launch (an OS "Open with" file) got there first.
+   * A linked file reattaches on its own where the browser allows; otherwise the Reopen button is one click away.
+   */
+  async reopenLastProject(isPreempted = () => false) {
+    const key = this.getLastProjectKey();
+    if (!key) return false;
+    const busy = () => isPreempted() || state.hasMedia() || state.notes.length > 0;
+    if (busy()) return false;
+    const data = await this.db.get(key);
+    if (!data) {
+      this.forgetLastProject(key);
+      return false;
+    }
+    if (busy()) return false;
+    await this.openSessionByKey(key);
+    return true;
   }
 
   /**
@@ -254,6 +298,8 @@ export class SessionsManager {
     try {
       const data = await this.db.get(key);
       if (data) {
+        // Only while this is still the active project: "New Project" may have cleared the memory during the read
+        if (state.getStorageKey() === key) this.rememberLastProject(key);
         // Restore custom project title if previously renamed or saved
         if (data.fileName && data.fileName !== state.mediaTitle) {
           state.mediaTitle = data.fileName;
@@ -648,6 +694,7 @@ export class SessionsManager {
       showToast('Could not load session data');
       return;
     }
+    this.rememberLastProject(key);
 
     const fileName = data.fileName || 'Untitled Media';
     const originalFileName = data.originalFileName || null;
@@ -892,6 +939,7 @@ export class SessionsManager {
     if (!ok) return;
 
     await this.db.delete(key);
+    this.forgetLastProject(key);
 
     if (state.getStorageKey() === key || state.detachedSessionKey === key) {
       this.player.resetPlaybackState();

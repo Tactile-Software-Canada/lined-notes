@@ -16,6 +16,7 @@ export const APP_CONFIG = {
   copyIncludeTimestampKey: 'ln_copy_include_timestamp',
   stampOffsetKey: 'ln_stamp_offset',
   onboardingSeenKey: 'ln_onboarding_seen',
+  lastProjectKey: 'ln_last_project', // storage key of the project to reopen on launch
 
   // Audio waveform decoding limits (memory safe for desktop and mobile)
   maxDecodeSizeDesktop: 500 * 1024 * 1024, // 500MB

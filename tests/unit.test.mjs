@@ -314,3 +314,63 @@ test('readHandleFile classifies getFile failures', async () => {
   assert.deepEqual(await readHandleFile(failing('SecurityError')), { error: 'denied' });
   assert.deepEqual(await readHandleFile(failing('InvalidStateError')), { error: 'failed' });
 });
+
+// ─── Last open project ───────────────────────────────────────────────
+
+import { SessionsManager } from '../js/sessions.js';
+import { APP_CONFIG } from '../js/config.js';
+
+const fakeStorage = () => { const m = new Map(); return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k) }; };
+// SessionsManager's constructor touches the DOM; the last-project helpers only need db and openSessionByKey
+const bareSessions = (records = {}) => {
+  const s = Object.create(SessionsManager.prototype);
+  s.db = { get: async k => records[k] || null };
+  s.opened = [];
+  s.openSessionByKey = async k => { s.opened.push(k); };
+  return s;
+};
+
+test('last project is remembered, forgotten by key, and read back', () => {
+  globalThis.localStorage = fakeStorage();
+  const s = bareSessions();
+  assert.equal(s.getLastProjectKey(), null);
+  s.rememberLastProject('ln_session_a.mp4_1');
+  assert.equal(s.getLastProjectKey(), 'ln_session_a.mp4_1');
+  s.forgetLastProject('ln_session_other_2');
+  assert.equal(s.getLastProjectKey(), 'ln_session_a.mp4_1', 'deleting another project leaves it');
+  s.forgetLastProject('ln_session_a.mp4_1');
+  assert.equal(s.getLastProjectKey(), null);
+  s.rememberLastProject('ln_session_a.mp4_1');
+  s.forgetLastProject();
+  assert.equal(s.getLastProjectKey(), null, 'New Project clears it unconditionally');
+  s.rememberLastProject(null);
+  assert.equal(s.getLastProjectKey(), null);
+});
+
+test('reopenLastProject opens the remembered project only when nothing got there first', async () => {
+  globalThis.localStorage = fakeStorage();
+  const key = 'ln_session_a.mp4_1';
+  let s = bareSessions({ [key]: { fileName: 'a.mp4', notes: [] } });
+  assert.equal(await s.reopenLastProject(), false, 'nothing remembered');
+  assert.deepEqual(s.opened, []);
+
+  localStorage.setItem(APP_CONFIG.lastProjectKey, key);
+  assert.equal(await s.reopenLastProject(), true);
+  assert.deepEqual(s.opened, [key]);
+  assert.equal(s.getLastProjectKey(), key, 'stays remembered after reopening');
+
+  s = bareSessions({ [key]: { fileName: 'a.mp4', notes: [] } });
+  assert.equal(await s.reopenLastProject(() => true), false, 'an OS file launch takes precedence');
+  assert.deepEqual(s.opened, []);
+
+  s = bareSessions({});
+  assert.equal(await s.reopenLastProject(), false, 'deleted elsewhere');
+  assert.equal(s.getLastProjectKey(), null, 'a missing project is forgotten');
+
+  localStorage.setItem(APP_CONFIG.lastProjectKey, key);
+  s = bareSessions({ [key]: { fileName: 'a.mp4', notes: [] } });
+  state.detachedMode = true; // something is already showing
+  assert.equal(await s.reopenLastProject(), false);
+  state.detachedMode = false;
+  assert.deepEqual(s.opened, []);
+});

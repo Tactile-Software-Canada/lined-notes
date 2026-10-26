@@ -58,6 +58,7 @@ No media files or notes are ever uploaded to an external server or cloud service
 
 ### 💾 Local Projects & Session Management
 - **IndexedDB Auto-Save:** Changes are persisted locally across reloads and media changes in `LinedNotesDB`.
+- **Picks Up Where You Left Off:** The project that was open when you last closed Lined Notes opens again on the next launch; a linked file reattaches where the browser allows, otherwise *Reopen* is one click away. Start a *New Project* before leaving to open on a blank slate instead.
 - **Project Switcher & Manager:** Browse all past sessions, search by media title or tags, restore projects, and manage stored sessions.
 - **Inline Project Renaming:** Rename session titles directly from the project manager with confirm/cancel controls.
 - **Back Up & Restore:** Download every project as one JSON file and restore it later (restores merge with existing projects). Backups carry notes, not file links: a restored project opens in Detached Review Mode until its media file is attached once more.

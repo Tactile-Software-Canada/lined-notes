@@ -53,6 +53,13 @@ export class LinedNotesApp {
     const launchedWithMedia = this.handleLaunchParams();
     // First visit only; deferred if the app was opened straight into media
     this.onboarding.maybeAutoShow({ launchedWithMedia, shouldDefer: () => state.hasMedia() });
+
+    // Pick up where the user left off, unless the app was launched into a file, a link or the Open shortcut
+    if (!this.launchedWithIntent) {
+      this.sessions.reopenLastProject(() => this.launchedWithIntent).catch((err) => {
+        console.warn('[Sessions] Could not reopen the last project:', err);
+      });
+    }
   }
 
   openOnboarding() {
@@ -66,7 +73,8 @@ export class LinedNotesApp {
    */
   handleLaunchParams() {
     const { action, mediaInput } = parseLaunchParams(window.location.search, window.location.hash);
-    if (!action && !mediaInput) return false;
+    this.launchedWithIntent = Boolean(action || mediaInput);
+    if (!this.launchedWithIntent) return false;
     // Strip the params so a reload doesn't re-trigger them
     try {
       history.replaceState(null, '', window.location.pathname);
@@ -633,6 +641,7 @@ export class LinedNotesApp {
       window.launchQueue.setConsumer(async (launchParams) => {
         const handle = launchParams && launchParams.files && launchParams.files[0];
         if (!handle) return;
+        this.launchedWithIntent = true; // the launched file wins over reopening the last project
         try {
           this.player.loadFile(await handle.getFile(), { handle });
         } catch (err) {
@@ -804,6 +813,9 @@ export class LinedNotesApp {
 
     const detachedStage = document.getElementById('detached-stage');
     if (detachedStage) detachedStage.style.display = 'none';
+
+    // A deliberately closed project is not reopened on the next launch
+    this.sessions.forgetLastProject();
 
     // Clear application state
     state.mediaFile = null;
