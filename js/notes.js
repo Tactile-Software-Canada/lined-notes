@@ -214,6 +214,11 @@ export class NotesManager {
   }
 
   setAPoint() {
+    // A second press deselects the In point and cancels the range being created
+    if (state.APoint !== null) {
+      this.clearRange();
+      return;
+    }
     state.APoint = state.currentTime;
     if (state.BPoint !== null && state.BPoint < state.APoint) {
       state.BPoint = null;
