@@ -238,7 +238,7 @@ export class SessionsManager {
   async backupAllSessions() {
     const sessions = await this.db.getAllSessions();
     if (sessions.length === 0) {
-      showToast('No saved projects to back up');
+      showToast('No saved notebooks to back up');
       return;
     }
     const backup = {
@@ -250,7 +250,6 @@ export class SessionsManager {
     };
     const date = new Date().toISOString().slice(0, 10);
     downloadText(`lined-notes-backup-${date}.json`, JSON.stringify(backup, null, 2), 'application/json');
-    showToast(`Backed up ${sessions.length} project${sessions.length === 1 ? '' : 's'}`);
   }
 
   async restoreFromFile(file) {
@@ -263,7 +262,7 @@ export class SessionsManager {
       return;
     }
     if (entries.length === 0) {
-      showToast('Backup contains no projects');
+      showToast('Backup contains no notebooks');
       return;
     }
 
@@ -287,7 +286,6 @@ export class SessionsManager {
 
     await this.updateProjectsCountBadge();
     await this.renderSessionsList(this.searchInput ? this.searchInput.value : '');
-    showToast(`Restored ${created} new and merged ${merged} existing project${merged === 1 ? '' : 's'}`, false, null, 5000);
   }
 
   async autoRestoreSession() {
@@ -330,7 +328,6 @@ export class SessionsManager {
             state.notes = data.notes;
             state.emit('noteschange');
             state.emit('timelinechanged');
-            showToast(`Restored ${state.notes.length} notes for ${state.mediaTitle || 'session'}`);
           } else {
             // Notes already in memory (e.g. imported before the media was opened): merge, don't discard either side
             const knownIds = new Set(state.notes.map(n => String(n.id)));
@@ -339,14 +336,15 @@ export class SessionsManager {
               state.notes = [...state.notes, ...added].sort((a, b) => a.start - b.start);
               state.emit('noteschange');
               state.emit('timelinechanged');
-              showToast(`Merged ${added.length} saved notes for ${state.mediaTitle || 'session'}`);
             }
           }
         }
       }
       // A project saved before the browser could remember its file gets linked the first time it is opened from disk
       const linksNewHandle = Boolean(data && state.mediaFileHandle && !isFileHandle(data.fileHandle));
-      if (hadInMemoryNotes || linksNewHandle) this.saveSession();
+      // Media opened for the first time gets its notebook saved straight away, even before any note,
+      // so a reload brings it back instead of leaving an empty app
+      if (!data || hadInMemoryNotes || linksNewHandle) this.saveSession();
     } catch (e) {
       console.warn('Persistence restore error:', e);
     }
@@ -401,7 +399,7 @@ export class SessionsManager {
   async renderSessionsList(filterQuery = '') {
     if (!this.sessionsList) return;
     if (!this.sessionsList.hasChildNodes() || this.sessionsList.querySelector('.sessions-empty')) {
-      this.sessionsList.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);font-size:12px;">Loading saved sessions…</div>';
+      this.sessionsList.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;">Loading saved sessions…</div>';
     }
 
     const rawSessions = await this.db.getAllSessions();
@@ -432,7 +430,7 @@ export class SessionsManager {
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
               </svg>
             </div>
-            <div class="sessions-empty-title">No Saved Projects Yet</div>
+            <div class="sessions-empty-title">No Saved Notebooks Yet</div>
             <div class="sessions-empty-desc">Open an audio or video file and start creating notes. Your annotations will automatically save here so you can revisit them anytime.</div>
             <button class="btn btn-primary btn-sm" onclick="app.openMediaPicker(); app.sessions.closeSessionsModal();">
               Open Media File
@@ -441,7 +439,7 @@ export class SessionsManager {
       } else {
         this.sessionsList.innerHTML = `
           <div class="sessions-empty">
-            <div class="sessions-empty-title">No Matching Projects</div>
+            <div class="sessions-empty-title">No Matching Notebooks</div>
             <div class="sessions-empty-desc">No saved sessions match "${escapeHtml(q)}". Try a different search term.</div>
           </div>`;
       }
@@ -477,12 +475,12 @@ export class SessionsManager {
       let typeBadge = '';
       if (item.data?.sourceType === 'youtube' || item.data?.youtubeVideoId) {
         mediaIconSvg = `<svg viewBox="0 0 24 24" fill="#ff0000" width="16" height="16"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`;
-        typeBadge = '<span class="session-badge-type" style="background:rgba(255,0,0,0.12);color:#ff4e45;border:1px solid rgba(255,0,0,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;font-family:var(--font-mono);">YouTube</span>';
+        typeBadge = '<span class="session-badge-type" style="background:rgba(255,0,0,0.12);color:#ff4e45;border:1px solid rgba(255,0,0,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;">YouTube</span>';
       } else if (item.data?.sourceType === 'url') {
         mediaIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" width="16" height="16"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
-        typeBadge = '<span class="session-badge-type" style="background:rgba(56,189,248,0.12);color:var(--accent-cyan);border:1px solid rgba(56,189,248,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;font-family:var(--font-mono);">Web Video</span>';
+        typeBadge = '<span class="session-badge-type" style="background:rgba(56,189,248,0.12);color:var(--accent-cyan);border:1px solid rgba(56,189,248,0.24);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;">Web Video</span>';
       } else if (isFileHandle(item.data?.fileHandle)) {
-        typeBadge = '<span class="session-badge-type" style="background:rgba(112,151,117,0.14);color:#709775;border:1px solid rgba(112,151,117,0.3);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;font-family:var(--font-mono);" title="The media file is remembered: opening this project reopens it without browsing">Linked</span>';
+        typeBadge = '<span class="session-badge-type" style="background:rgba(112,151,117,0.14);color:#709775;border:1px solid rgba(112,151,117,0.3);font-size:10px;padding:1px 6px;border-radius:var(--radius-full);font-weight:600;" title="The media file is remembered: opening this notebook reopens it without browsing">Linked</span>';
       }
 
       const fileInfoHtml = `
@@ -490,7 +488,7 @@ export class SessionsManager {
           <div class="session-title-static">
             <span class="session-media-icon">${mediaIconSvg}</span>
             <span class="session-file-name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</span>
-            <button type="button" class="session-rename-btn" data-session-action="edit-name" data-session-key="${escapeHtml(key)}" title="Rename project" aria-label="Rename project">
+            <button type="button" class="session-rename-btn" data-session-action="edit-name" data-session-key="${escapeHtml(key)}" title="Rename notebook" aria-label="Rename notebook">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
                 <path d="M12 20h9"/>
                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -501,8 +499,8 @@ export class SessionsManager {
           </div>
           <div class="session-rename-form">
             <span class="session-media-icon">${mediaIconSvg}</span>
-            <input type="text" class="session-rename-input" name="project-rename-input" aria-label="Project name" data-session-key="${escapeHtml(key)}" value="${escapeHtml(fileName)}" maxlength="120" spellcheck="false" autocomplete="off" />
-            <button type="button" class="session-rename-action-btn check" data-session-action="save-name" data-session-key="${escapeHtml(key)}" title="Save project name (Enter)" aria-label="Save project name">
+            <input type="text" class="session-rename-input" name="project-rename-input" aria-label="Notebook name" data-session-key="${escapeHtml(key)}" value="${escapeHtml(fileName)}" maxlength="120" spellcheck="false" autocomplete="off" />
+            <button type="button" class="session-rename-action-btn check" data-session-action="save-name" data-session-key="${escapeHtml(key)}" title="Save notebook name (Enter)" aria-label="Save notebook name">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
@@ -526,7 +524,7 @@ export class SessionsManager {
 
           <div class="session-card-meta">
             <span><strong>${noteCount}</strong> note${noteCount === 1 ? '' : 's'}</span>
-            ${duration > 0 ? `<span>•</span><span>${formatTime(duration)}</span>` : ''}
+            ${duration > 0 ? `<span>•</span><span class="session-card-duration">${formatTime(duration)}</span>` : ''}
             ${fileSize > 0 ? `<span>•</span><span>${formatBytes(fileSize)}</span>` : ''}
           </div>
 
@@ -604,7 +602,7 @@ export class SessionsManager {
     const trimmed = (newName || '').trim();
     const card = this.getSessionCardByKey(key);
     if (!trimmed) {
-      showToast('Project name cannot be empty');
+      showToast('Notebook name cannot be empty');
       const input = card ? card.querySelector('.session-rename-input') : null;
       if (input) input.focus();
       return;
@@ -667,10 +665,9 @@ export class SessionsManager {
         data.originalFileName = state.mediaFile.name;
       }
       await this.db.set(key, data);
-      showToast(`Project renamed to "${trimmed}"`);
     } catch (err) {
       console.error('Failed to persist renamed session:', err);
-      showToast('Error saving project name');
+      showToast('Error saving notebook name');
     }
   }
 
@@ -681,7 +678,6 @@ export class SessionsManager {
   async openSessionByKey(key, options = {}) {
     if (state.getStorageKey() === key && !state.detachedMode) {
       this.closeSessionsModal();
-      showToast('Session already active');
       return;
     }
 
@@ -735,7 +731,6 @@ export class SessionsManager {
       state.emit('noteschange');
       state.emit('timelinechanged');
       this.closeSessionsModal();
-      showToast(`Restored ${state.notes.length} notes for ${fileName}`);
       return;
     }
 
@@ -842,12 +837,8 @@ export class SessionsManager {
 
     // Reopen the remembered file straight away when the browser lets us
     if (state.detachedFileHandle && options.autoReopen !== false) {
-      const result = await this.reopenLinkedMedia({ quiet: true });
-      if (result !== 'needs-gesture') return; // attached, link set aside (toast shown) or the user moved on
-      showToast(`Loaded ${fileName} (${state.notes.length} notes). Click "Reopen" to attach the media file.`, false, null, 5000);
-      return;
+      await this.reopenLinkedMedia({ quiet: true });
     }
-    showToast(`Loaded ${fileName} (${state.notes.length} notes in review mode)`);
   }
 
   /** Shows the Reopen button only while the detached project has a remembered file. */
@@ -903,7 +894,7 @@ export class SessionsManager {
     }
     // Projects are keyed by file name and size: a renamed or re-encoded file would save under another key
     if (fileSessionKey(file) !== key) {
-      this.setAsideLinkedMedia(`The remembered file is now "${file.name}" (${formatBytes(file.size)}), which no longer matches this project. Attach the media file manually.`);
+      this.setAsideLinkedMedia(`The remembered file is now "${file.name}" (${formatBytes(file.size)}), which no longer matches this notebook. Attach the media file manually.`);
       return 'lost';
     }
     this.player.loadFile(file, { handle });
@@ -929,11 +920,11 @@ export class SessionsManager {
   async deleteSessionByKey(key, event) {
     if (event) event.stopPropagation();
     const data = await this.db.get(key);
-    const name = (data && data.fileName) || 'this project';
+    const name = (data && data.fileName) || 'this notebook';
     const ok = await confirmDialog({
-      title: 'Delete saved project?',
+      title: 'Delete saved notebook?',
       message: `"${name}" and all of its annotations will be permanently removed from this browser. Consider "Back Up All" first.`,
-      confirmLabel: 'Delete Project',
+      confirmLabel: 'Delete Notebook',
       danger: true
     });
     if (!ok) return;
@@ -973,7 +964,6 @@ export class SessionsManager {
     await this.updateProjectsCountBadge();
     const query = this.searchInput ? this.searchInput.value : '';
     await this.renderSessionsList(query);
-    showToast('Saved project deleted');
   }
 
   filterSessionsList(val) {

@@ -225,6 +225,7 @@ html[data-theme="light"] #drop-zone:hover {
   border-radius: var(--radius-lg);
   background: var(--bg-card);
   transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  width: 100%;
   max-width: 440px;
   text-align: center;
 }
@@ -258,30 +259,6 @@ html[data-theme="light"] #drop-zone:hover {
   color: var(--text-primary);
 }
 
-
-.drop-desc {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.drop-pills {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.drop-pill {
-  font-family: var(--font-mono);
-  font-size: var(--text-2xs);
-  padding: 2px 7px;
-  border-radius: var(--radius-full);
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-}
 
 .drop-url-bar {
   display: flex;
@@ -371,10 +348,8 @@ html[data-theme="light"] #drop-zone:hover {
 
 .detached-badge {
   font-size: var(--text-2xs);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: var(--fw-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--accent-primary);
   background: var(--accent-dim);
   padding: 3px 10px;
@@ -545,7 +520,7 @@ html[data-theme="light"] #drop-zone:hover {
 }
 
 .fullscreen-exit-kbd {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
   color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.08);

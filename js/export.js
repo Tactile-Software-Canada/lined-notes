@@ -164,9 +164,9 @@ export class ExportManager {
   body { background:#141210; color:#f5f2eb; font-family:system-ui,-apple-system,sans-serif; padding:40px; margin:0; }
   .card { max-width:900px; margin:0 auto; background:#1b1815; border:1px solid #38312b; border-radius:12px; padding:32px; box-shadow:0 12px 36px rgba(0,0,0,0.5); }
   h1 { margin:0 0 8px; font-size:22px; color:#f5f2eb; }
-  .meta { color:#a89f91; font-size:13px; margin-bottom:24px; font-family:monospace; }
+  .meta { color:#a89f91; font-size:13px; margin-bottom:24px; }
   table { width:100%; border-collapse:collapse; margin-top:16px; }
-  th { text-align:left; padding:10px; border-bottom:2px solid #38312b; color:#a89f91; font-size:12px; text-transform:uppercase; }
+  th { text-align:left; padding:10px; border-bottom:2px solid #38312b; color:#a89f91; font-size:12px; }
   td { padding:12px 10px; border-bottom:1px solid #2b2520; font-size:13px; vertical-align:top; }
   tr:hover { background:#231f1b; }
 </style>
@@ -198,12 +198,11 @@ export class ExportManager {
     downloadText(`${baseName}_annotations.${ext}`, content, exportMime);
 
     this.closeExportModal();
-    showToast(`Exported as .${ext}`);
   }
 
   copyExportToClipboard() {
     const { content, ext } = this.generateExportContent();
-    copyText(content, `Copied ${ext.toUpperCase()} to clipboard`);
+    copyText(content);
     this.closeExportModal();
   }
 
@@ -226,7 +225,6 @@ export class ExportManager {
             files: [file]
           });
           this.closeExportModal();
-          showToast('Shared successfully!');
           return;
         } else {
           await navigator.share({
@@ -234,7 +232,6 @@ export class ExportManager {
             text: content
           });
           this.closeExportModal();
-          showToast('Shared successfully!');
           return;
         }
       } catch (err) {

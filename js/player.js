@@ -249,7 +249,6 @@ export class PlayerController {
       state.mediaUrl = URL.createObjectURL(file);
 
       this.updateMediaUI(file);
-      showToast(`Attached ${file.name} to session "${preservedTitle}"`);
       this.generateWaveformPeaks(file);
 
       state.emit('filereset');
@@ -302,7 +301,6 @@ export class PlayerController {
     state.mediaUrl = URL.createObjectURL(file);
 
     this.updateMediaUI(file);
-    showToast(`Loaded ${file.name}`);
     this.generateWaveformPeaks(file);
 
     state.emit('filereset');
@@ -817,9 +815,6 @@ export class PlayerController {
         if (options.isRestoring) {
           state.emit('noteschange');
           state.emit('timelinechanged');
-          showToast(`Restored ${state.notes.length} notes for ${state.mediaTitle || 'YouTube'}`);
-        } else {
-          showToast(`Loaded ${state.mediaTitle || 'YouTube video'}`);
         }
 
         safeResolve();
@@ -1015,7 +1010,6 @@ export class PlayerController {
     }
 
     state.emit('filereset');
-    showToast(options.isRestoring ? `Restored ${state.notes.length} notes for ${state.mediaTitle}` : `Loaded ${state.mediaTitle}`);
     return true;
   }
 
@@ -1087,7 +1081,6 @@ export class PlayerController {
     state.isLooping = !state.isLooping;
     const loopBtn = document.getElementById('loop-range-btn');
     if (loopBtn) loopBtn.classList.toggle('active', state.isLooping);
-    showToast(state.isLooping ? 'A-B Range Loop enabled' : 'A-B Range Loop disabled');
   }
 
   updatePlayStateUI() {
@@ -1191,7 +1184,6 @@ export class PlayerController {
     if (idx === -1) idx = speeds.indexOf(1);
     const next = speeds[(idx + 1) % speeds.length];
     this.setSpeed(next);
-    showToast(`Speed: ${next}×`);
   }
 
   togglePiP() {

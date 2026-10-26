@@ -38,7 +38,7 @@ export const DEFAULT_TAGS = [
 ];
 
 export const EXPORT_FORMATS = [
-  { id: 'json', label: 'JSON (Project)', ext: 'json', mime: 'application/json' },
+  { id: 'json', label: 'JSON (Notebook)', ext: 'json', mime: 'application/json' },
   { id: 'md', label: 'Markdown (.md)', ext: 'md', mime: 'text/markdown' },
   { id: 'srt', label: 'SubRip (.srt)', ext: 'srt', mime: 'text/srt' },
   { id: 'vtt', label: 'WebVTT (.vtt)', ext: 'vtt', mime: 'text/vtt' },

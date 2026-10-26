@@ -192,7 +192,7 @@ export function timeAgo(dateStr) {
 /**
  * Robust clipboard copy with fallback to hidden textarea (ISSUE-10 fix).
  */
-export async function copyText(text, successMsg = 'Copied to clipboard') {
+export async function copyText(text) {
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
@@ -208,7 +208,6 @@ export async function copyText(text, successMsg = 'Copied to clipboard') {
       document.execCommand('copy');
       document.body.removeChild(ta);
     }
-    showToast(successMsg);
   } catch (err) {
     console.warn('Clipboard write error:', err);
     showToast('Failed to copy to clipboard');

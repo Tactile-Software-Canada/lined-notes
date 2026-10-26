@@ -70,12 +70,12 @@
       <div class="header-sep"></div>
 
       <button class="btn btn-ghost btn-sm btn-new-project" id="new-project-btn" onclick="app.newProject()"
-        title="Start New Project" aria-label="Start New Project">
+        title="Start New Notebook" aria-label="Start New Notebook">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
-        <span class="btn-text">New Project</span>
+        <span class="btn-text">New Notebook</span>
       </button>
       <button class="btn btn-ghost btn-sm btn-open-media" id="open-media-btn"
         onclick="app.openMediaPicker()" title="Open Audio or Video File"
@@ -96,11 +96,11 @@
         <span class="btn-text">Open URL</span>
       </button>
       <button class="btn btn-ghost btn-sm btn-projects" id="projects-btn" onclick="app.openSessionsModal()"
-        title="Saved Projects & Sessions">
+        title="Saved Notebooks & Sessions">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
           <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
         </svg>
-        <span class="btn-text">Saved Projects</span>
+        <span class="btn-text">Saved Notebooks</span>
         <span class="projects-count-badge" id="projects-count-badge" style="display:none;">0</span>
       </button>
       <input type="file" id="file-picker"
@@ -116,7 +116,7 @@
 
       <!-- Offline status badge -->
       <div id="offline-badge"
-        style="display:none;align-items:center;gap:5px;font-size:11px;font-family:var(--font-mono);color:#f59e0b;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);padding:3px 8px;border-radius:var(--radius-full);"
+        style="display:none;align-items:center;gap:5px;font-size:11px;color:#f59e0b;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);padding:3px 8px;border-radius:var(--radius-full);"
         title="Offline: All annotation and playback features working locally">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
           <line x1="1" y1="1" x2="23" y2="23" />
@@ -203,7 +203,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <path d="M12 5v14M5 12h14" />
             </svg>
-            <span>New Project</span>
+            <span>New Notebook</span>
           </div>
           <div class="dropdown-item" onclick="app.openMediaPicker(); app.closeMobileMenu();">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -242,8 +242,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
             </svg>
-            <span>Saved Projects <span id="menu-projects-count"
-                style="font-family:var(--font-mono);font-size:11px;color:var(--accent-cyan);"></span></span>
+            <span>Saved Notebooks <span id="menu-projects-count"
+                style="font-size:11px;color:var(--accent-cyan);"></span></span>
           </div>
           <div class="dropdown-item" onclick="app.openExportModal(); app.closeMobileMenu();">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -320,17 +320,6 @@
               </svg>
             </div>
             <div class="drop-title">Select your audio or video file</div>
-            <div class="drop-desc">Works 100% locally in your browser. No files are ever uploaded to any server.</div>
-            <div class="drop-pills">
-              <span class="drop-pill">MP4</span>
-              <span class="drop-pill">MKV</span>
-              <span class="drop-pill">WebM</span>
-              <span class="drop-pill">MOV</span>
-              <span class="drop-pill">MP3</span>
-              <span class="drop-pill">WAV</span>
-              <span class="drop-pill">M4A</span>
-              <span class="drop-pill">OGG</span>
-            </div>
             <div class="drop-url-bar" onclick="event.stopPropagation()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"
                 class="drop-url-icon">
@@ -398,7 +387,7 @@
               searching, timeline navigation, and export are active.</div>
             <div class="detached-actions">
               <button class="btn btn-primary btn-sm" id="detached-reopen-btn" style="display:none"
-                onclick="app.reopenLinkedMedia()" title="Reopen the media file this project was made from">
+                onclick="app.reopenLinkedMedia()" title="Reopen the media file this notebook was made from">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                   <polyline points="1 4 1 10 7 10"></polyline>
                   <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
@@ -687,8 +676,8 @@
 
       <div class="export-grid">
         <div class="export-fmt-card selected" data-fmt="json" onclick="app.selectExportFmt(this)">
-          <div class="fmt-badge">JSON (Project)</div>
-          <div class="fmt-desc">Full fidelity project backup. Includes tags, ranges, and snapshots.</div>
+          <div class="fmt-badge">JSON (Notebook)</div>
+          <div class="fmt-desc">Full fidelity notebook backup. Includes tags, ranges, and snapshots.</div>
         </div>
         <div class="export-fmt-card" data-fmt="md" onclick="app.selectExportFmt(this)">
           <div class="fmt-badge">Markdown (.md)</div>
@@ -717,7 +706,7 @@
         Tip: On Android/iOS, tap <strong>Share…</strong> to save directly to Google Drive, Files, or messaging apps.
       </div>
 
-      <div class="modal-footer">
+      <div class="modal-footer" style="justify-content:space-between;margin-top:14px;display:flex;justify-content:flex-start;gap:12px;padding:16px 24px;flex-flow:row-reverse;">
         <button class="btn btn-ghost" id="share-export-btn" onclick="app.shareExport()" style="display:none;"
           title="Share annotations via system apps">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -843,6 +832,11 @@
         </div>
       </div>
 
+      <div class="settings-about">
+        <div class="settings-section-title">About</div>
+        <p class="settings-about-text">Works 100% locally in your browser. No files are ever uploaded to any server.</p>
+      </div>
+
       <div class="modal-footer" style="margin-top:16px;">
         <button class="btn btn-primary" data-modal-close onclick="app.closeSettingsModal()">Done</button>
       </div>
@@ -921,7 +915,7 @@
       <div class="modal-drag-indicator"></div>
       <div class="modal-header">
         <div class="modal-title-wrap">
-          <div class="modal-title">Saved Projects & Sessions</div>
+          <div class="modal-title">Saved Notebooks & Sessions</div>
           <div class="modal-subtitle">Locally stored annotations across all your media files</div>
         </div>
         <button class="modal-close-btn" data-modal-close onclick="app.closeSessionsModal()">✕</button>
@@ -954,18 +948,18 @@
 
       <div class="modal-footer" style="justify-content:space-between;margin-top:14px;">
         <button class="btn btn-primary btn-sm" onclick="app.newProject(); app.closeSessionsModal();"
-          title="Start a fresh project">
+          title="Start a fresh notebook">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"
             style="margin-right:4px;">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          New Project
+          New Notebook
         </button>
         <button class="btn btn-ghost btn-sm" onclick="app.sessions.backupAllSessions()"
-          title="Download every saved project as one JSON file">Back Up All</button>
+          title="Download every saved notebook as one JSON file">Back Up All</button>
         <button class="btn btn-ghost btn-sm" onclick="document.getElementById('restore-file-input').click()"
-          title="Restore projects from a backup file (merges with existing projects)">Restore…</button>
+          title="Restore notebooks from a backup file (merges with existing notebooks)">Restore…</button>
         <input type="file" id="restore-file-input" accept=".json,application/json" style="display:none"
           onchange="app.sessions.restoreFromFile(this.files[0]); this.value = '';">
         <button class="btn btn-ghost" data-modal-close onclick="app.closeSessionsModal()">Close</button>
