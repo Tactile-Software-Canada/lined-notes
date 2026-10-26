@@ -342,7 +342,9 @@ export class SessionsManager {
       }
       // A project saved before the browser could remember its file gets linked the first time it is opened from disk
       const linksNewHandle = Boolean(data && state.mediaFileHandle && !isFileHandle(data.fileHandle));
-      if (hadInMemoryNotes || linksNewHandle) this.saveSession();
+      // Media opened for the first time gets its notebook saved straight away, even before any note,
+      // so a reload brings it back instead of leaving an empty app
+      if (!data || hadInMemoryNotes || linksNewHandle) this.saveSession();
     } catch (e) {
       console.warn('Persistence restore error:', e);
     }

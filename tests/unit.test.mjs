@@ -374,3 +374,24 @@ test('reopenLastProject opens the remembered project only when nothing got there
   state.detachedMode = false;
   assert.deepEqual(s.opened, []);
 });
+
+test('autoRestoreSession saves a notebook for media opened for the first time, even with no notes', async () => {
+  state.mediaSourceType = 'file';
+  state.mediaFile = { name: 'a.mp4', size: 1 };
+  state.mediaTitle = 'a.mp4';
+  state.notes = [];
+  const key = state.getStorageKey();
+  const withSaveSpy = s => { s.saves = 0; s.saveSession = async () => { s.saves++; }; return s; };
+
+  const fresh = withSaveSpy(bareSessions({}));
+  await fresh.autoRestoreSession();
+  assert.equal(fresh.saves, 1, 'new media gets an empty notebook');
+
+  const known = withSaveSpy(bareSessions({ [key]: { fileName: 'a.mp4', notes: [] } }));
+  await known.autoRestoreSession();
+  assert.equal(known.saves, 0, 'an existing notebook is not rewritten just for opening it');
+
+  state.mediaFile = null;
+  state.mediaSourceType = null;
+  state.mediaTitle = null;
+});
